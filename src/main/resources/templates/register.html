@@ -1,22 +1,64 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Registro</title>
+    <meta charset="UTF-8">
+    <title>Registro - Projects-JMC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <h2>Registro de Usuario</h2>
-    <form th:action="@{/register}" method="post" th:object="${user}">
-        <label>Usuario:</label>
-        <input type="text" th:field="*{username}" required />
-        <br/>
-        <label>Contraseña:</label>
-        <input type="password" th:field="*{password}" required />
-        <br/>
-        <button type="submit">Registrar</button>
-    </form>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h2 class="text-center mb-4">Crear cuenta</h2>
 
-    <p>¿Ya tienes cuenta? <a th:href="@{/login}">Inicia sesión</a></p>
+                        <!-- FORMULARIO CON MODELO CORRECTO -->
+                        <form th:action="@{/register}" method="post" th:object="${userDto}">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre</label>
+                                <input type="text" th:field="*{name}" class="form-control" placeholder="Tu nombre completo" required>
+                                <div class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                            </div>
 
-    <p th:if="${success}" th:text="${success}" style="color: green;"></p>
+                            <div class="mb-3">
+                                <label class="form-label">Correo Electrónico</label>
+                                <input type="email" th:field="*{email}" class="form-control" placeholder="correo@ejemplo.com" required>
+                                <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Contraseña</label>
+                                <input type="password" th:field="*{password}" class="form-control" placeholder="Contraseña segura" required>
+                                <div class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Confirmar Contraseña</label>
+                                <input type="password" th:field="*{confirmPassword}" class="form-control" placeholder="Repite tu contraseña" required>
+                                <div class="text-danger" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Seleccionar Rol</label>
+                                <select th:field="*{role}" class="form-select" required>
+                                    <option value="" disabled selected>Selecciona un rol</option>
+                                    <option value="USER">Usuario</option>
+                                    <option value="ADMIN">Administrador</option>
+                                </select>
+                                <div class="text-danger" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Registrarse</button>
+                        </form>
+
+                        <div class="text-center mt-3">
+                            ¿Ya tienes cuenta? <a th:href="@{/login}">Inicia sesión</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

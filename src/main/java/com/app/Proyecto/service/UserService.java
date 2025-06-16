@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.app.Proyecto.dto.UserRegistrationDto;
 import com.app.Proyecto.model.User;
 import com.app.Proyecto.repository.UserRepository;
 
@@ -16,14 +17,24 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
-    public void register(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    // Registro desde DTO
+    public void register(UserRegistrationDto userDto) {
+        User user = new User();
+        user.setName(userDto.getName());
+        user.setEmail(userDto.getEmail());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        user.setRole(userDto.getRole());
         userRepository.save(user);
     }
 
-    public boolean login(String username, String rawPassword) {
-        User user = userRepository.findByUsername(username);
+    // Para validación si el correo ya existe
+    public boolean existsByEmail(String email) {
+        return userRepository.findByEmail(email) != null;
+    }
+
+    // Login usando email y contraseña
+    public boolean login(String email, String rawPassword) {
+        User user = userRepository.findByEmail(email);
         return user != null && passwordEncoder.matches(rawPassword, user.getPassword());
     }
 }
