@@ -1,7 +1,6 @@
 package com.app.Proyecto.controller;
 
 import com.app.Proyecto.dto.UserRegistrationDto;
-import com.app.Proyecto.model.User;
 import com.app.Proyecto.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,12 +21,14 @@ public class AuthController {
 
     private final UserService userService;
 
+    // 👉 Vista de registro (formulario)
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
         model.addAttribute("userDto", new UserRegistrationDto());
         return "register";
     }
 
+    // 👉 Registro desde formulario web (Thymeleaf)
     @PostMapping("/register")
     public String registerWeb(
         @ModelAttribute("userDto") @Valid UserRegistrationDto userDto,
@@ -48,9 +49,10 @@ public class AuthController {
 
         userService.register(userDto);
         model.addAttribute("success", "Usuario registrado con éxito");
-        return "login";
+        return "login"; // redirige a vista de login después de registrar
     }
 
+    // 👉 API para registrar desde Postman o frontend SPA
     @PostMapping("/api/auth/register")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> registerAPI(@RequestBody @Valid UserRegistrationDto userDto) {
@@ -74,25 +76,18 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    // 👉 Vista del login (Spring Security se encarga del POST /login)
     @GetMapping("/login")
     public String loginForm() {
         return "login";
     }
 
-    @PostMapping("/api/auth/login")
-@ResponseBody
-public ResponseEntity<Map<String, Object>> loginAPI(@RequestBody User user) {
-    boolean success = userService.login(user.getEmail(), user.getPassword());  // <- CAMBIO AQUÍ
-    Map<String, Object> response = new HashMap<>();
-    response.put("success", success);
-    response.put("message", success ? "Login exitoso" : "Credenciales incorrectas");
-    return ResponseEntity.ok(response);
-}
+    // ❌ Eliminado el login manual /api/auth/login porque usamos Spring Security
 
-
+    // 👉 Dashboard tras login exitoso
     @GetMapping("/dashboard")
     public String dashboard(Model model, Principal principal) {
         model.addAttribute("username", principal.getName());
-        return "dashboard";
+        return "dashboard"; // Thymeleaf: dashboard.html en /templates
     }
 }

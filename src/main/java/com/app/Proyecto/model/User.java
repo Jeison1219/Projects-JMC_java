@@ -20,4 +20,9 @@ public class User {
     private String password;
 
     private String role; // si manejas múltiples roles puedes usar @ManyToOne en su lugar
+
+    public User orElseThrow(Object object) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'orElseThrow'");
+    }
 }

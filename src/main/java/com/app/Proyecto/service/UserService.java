@@ -29,12 +29,13 @@ public class UserService {
 
     // Para validación si el correo ya existe
     public boolean existsByEmail(String email) {
-        return userRepository.findByEmail(email) != null;
+        return userRepository.findByEmail(email).isPresent(); // ✅ usar Optional correctamente
     }
 
     // Login usando email y contraseña
     public boolean login(String email, String rawPassword) {
-        User user = userRepository.findByEmail(email);
-        return user != null && passwordEncoder.matches(rawPassword, user.getPassword());
+        return userRepository.findByEmail(email)
+            .map(user -> passwordEncoder.matches(rawPassword, user.getPassword()))
+            .orElse(false); // ✅ manejar ausencia de usuario
     }
 }
