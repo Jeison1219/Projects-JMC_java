@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${tarea.id == null} ? 'Crear Tarea' : 'Editar Tarea'">Tarea</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-box {
+            max-width: 700px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="form-box">
+    <a th:href="@{/tareas}" class="btn btn-outline-primary mb-3">← Volver</a>
+
+    <h3 th:text="${tarea.id == null} ? '➕ Crear Nueva Tarea' : '✏ Editar Tarea'"></h3>
+    <form th:action="${tarea.id == null} ? @{/tareas} : @{/tareas/actualizar/{id}(id=${tarea.id})}" th:object="${tarea}" method="post">
+        
+        <div class="mb-3">
+            <label>Proyecto</label>
+            <select class="form-select" th:field="*{proyecto.id}" required>
+                <option th:each="p : ${proyectos}" th:value="${p.id}" th:text="${p.nombre}" th:selected="${p.id == tarea.proyecto?.id}"></option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Título de la Tarea</label>
+            <input type="text" class="form-control" th:field="*{titulo}" placeholder="Ej: Implementar módulo de usuarios" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Descripción</label>
+            <textarea class="form-control" th:field="*{descripcion}" rows="4" placeholder="Detalles de la tarea..."></textarea>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Fecha Límite</label>
+                <input type="date" class="form-control" th:field="*{fechaLimite}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Prioridad</label>
+                <select class="form-select" th:field="*{prioridad}" required>
+                    <option value="Alta">Alta</option>
+                    <option value="Media">Media</option>
+                    <option value="Baja">Baja</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-3">
+            <a th:href="@{/tareas}" class="btn btn-secondary">🔙 Cancelar</a>
+            <button type="submit" class="btn btn-primary" th:text="${tarea.id == null} ? '💾 Guardar Tarea' : '✅ Actualizar Tarea'"></button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
