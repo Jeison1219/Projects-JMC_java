@@ -22,15 +22,15 @@ public class TareaController {
     private final UserRepository userRepository;
     private final ProyectoRepository proyectoRepository;
 
-    // Mostrar todas las tareas del usuario autenticado
+    // 📋 Mostrar lista de tareas del usuario autenticado
     @GetMapping
     public String listar(Model model, @AuthenticationPrincipal UserDetails userDetails) {
         User usuario = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
         model.addAttribute("tareas", tareaService.listarTareasPorUsuario(usuario));
-        return "tareas"; // archivo Thymeleaf tareas.html
+        return "tareas";
     }
 
-    // Mostrar formulario para nueva tarea
+    // 🆕 Formulario para nueva tarea
     @GetMapping("/nueva")
     public String nuevaTarea(Model model) {
         model.addAttribute("tarea", new Tarea());
@@ -38,7 +38,7 @@ public class TareaController {
         return "tarea-form";
     }
 
-    // Guardar tarea nueva
+    // 💾 Crear nueva tarea
     @PostMapping
     public String crear(@ModelAttribute Tarea tarea, @AuthenticationPrincipal UserDetails userDetails) {
         User usuario = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
@@ -47,33 +47,49 @@ public class TareaController {
         return "redirect:/tareas";
     }
 
-    // Mostrar formulario de edición
+    // ✏ Formulario de edición
     @GetMapping("/editar/{id}")
     public String editarTarea(@PathVariable Long id, Model model) {
-        Tarea tarea = tareaService.buscarPorId(id); // ya corregido
+        Tarea tarea = tareaService.buscarPorId(id);
         model.addAttribute("tarea", tarea);
         model.addAttribute("proyectos", proyectoRepository.findAll());
         return "tarea-form";
     }
 
-    // Actualizar una tarea editada
+    // 🔄 Actualizar tarea
     @PostMapping("/actualizar/{id}")
     public String actualizarTarea(@PathVariable Long id, @ModelAttribute Tarea tareaActualizada) {
         tareaService.actualizar(id, tareaActualizada);
         return "redirect:/tareas";
     }
 
-    // Marcar tarea como completada
+    // ✅ Marcar tarea como completada
     @PostMapping("/completar/{id}")
     public String completar(@PathVariable Long id) {
         tareaService.marcarComoCompletada(id);
         return "redirect:/tareas";
     }
 
-    // Eliminar tarea
+    // ❌ Eliminar tarea
     @PostMapping("/eliminar/{id}")
     public String eliminar(@PathVariable Long id) {
         tareaService.eliminarTarea(id);
         return "redirect:/tareas";
+    }
+
+    // 👁 Ver detalles de tarea
+    @GetMapping("/detalles/{id}")
+    public String verDetalles(@PathVariable Long id, Model model) {
+        Tarea tarea = tareaService.buscarPorId(id);
+        model.addAttribute("tarea", tarea);
+        model.addAttribute("usuarios", userRepository.findAll());
+        return "tarea-detalles";
+    }
+
+    // 👤 Asignar usuario a tarea
+    @PostMapping("/asignar/{id}")
+    public String asignarUsuario(@PathVariable Long id, @RequestParam("usuarioId") Long usuarioId) {
+        tareaService.asignarUsuario(id, usuarioId);
+        return "redirect:/tareas/detalles/" + id;
     }
 }

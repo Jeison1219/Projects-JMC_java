@@ -21,7 +21,7 @@ public class AuthController {
 
     private final UserService userService;
 
-    // 👉 Vista de registro (formulario)
+    // 👉 Mostrar formulario de registro
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
         model.addAttribute("userDto", new UserRegistrationDto());
@@ -35,6 +35,12 @@ public class AuthController {
         BindingResult result,
         Model model
     ) {
+        // ⚠️ Validaciones automáticas de @Valid
+        if (result.hasErrors()) {
+            return "register";
+        }
+
+        // ⚠️ Validaciones manuales
         if (!userDto.getPassword().equals(userDto.getConfirmPassword())) {
             result.rejectValue("confirmPassword", null, "Las contraseñas no coinciden");
         }
@@ -43,16 +49,17 @@ public class AuthController {
             result.rejectValue("email", null, "Este correo ya está registrado");
         }
 
+        // Si hay errores adicionales, volver al formulario
         if (result.hasErrors()) {
             return "register";
         }
 
         userService.register(userDto);
         model.addAttribute("success", "Usuario registrado con éxito");
-        return "login"; // redirige a vista de login después de registrar
+        return "login";
     }
 
-    // 👉 API para registrar desde Postman o frontend SPA
+    // 👉 Registro desde Postman o frontend (API JSON)
     @PostMapping("/api/auth/register")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> registerAPI(@RequestBody @Valid UserRegistrationDto userDto) {
@@ -76,18 +83,16 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    // 👉 Vista del login (Spring Security se encarga del POST /login)
+    // 👉 Formulario de login
     @GetMapping("/login")
     public String loginForm() {
         return "login";
     }
 
-    // ❌ Eliminado el login manual /api/auth/login porque usamos Spring Security
-
-    // 👉 Dashboard tras login exitoso
+    // 👉 Vista protegida tras login
     @GetMapping("/dashboard")
     public String dashboard(Model model, Principal principal) {
         model.addAttribute("username", principal.getName());
-        return "dashboard"; // Thymeleaf: dashboard.html en /templates
+        return "dashboard";
     }
 }
