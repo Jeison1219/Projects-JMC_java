@@ -9,16 +9,32 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.app.Proyecto.service.CustomUserDetailsService;
+
+import lombok.RequiredArgsConstructor;
+
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final CustomUserDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/register", "/login", "/home", "/api/auth/**", "/css/**", "/js/**").permitAll()
+                // Acceso libre
+                .requestMatchers("/register", "/login", "/home", "/css/**", "/js/**", "/api/auth/**").permitAll()
 
+                // Rutas solo para ADMIN
+                .requestMatchers("/tareas/nueva", "/tareas/editar/**", "/tareas/eliminar/**").hasRole("ADMIN")
+                .requestMatchers("/proyectos/nuevo", "/proyectos/editar/**", "/proyectos/eliminar/**").hasRole("ADMIN")
+
+                // Ver tareas y proyectos accesible por todos los autenticados
+                .requestMatchers("/tareas/**", "/proyectos/**").authenticated()
+
+                // Cualquier otra requiere autenticación
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -27,10 +43,11 @@ public class SecurityConfig {
                 .permitAll()
             )
             .logout(logout -> logout
-                .logoutUrl("/logout") // ✅ reemplazo moderno de AntPathRequestMatcher
+                .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
-            );
+            )
+            .userDetailsService(userDetailsService); // 💡 Usa tu servicio personalizado
 
         return http.build();
     }
