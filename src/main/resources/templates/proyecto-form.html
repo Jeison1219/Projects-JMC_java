@@ -4,111 +4,359 @@
   <meta charset="UTF-8">
   <title th:text="${proyecto.id == null} ? 'Nuevo Proyecto' : 'Editar Proyecto'">Proyecto</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root {
-      --nintendo-red: #E60012;
+      --primary: #29648e;
+      --primary-light: #3a7ca5;
+      --primary-dark: #1a4a6b;
+      --bg: #f4f6f8;
+      --card-bg: #ffffff;
+      --text: #1a1a1a;
+      --text-light: #6e6e73;
+      --border: #e0e0e0;
+      --success: #4CAF50;
+      --warning: #FFC107;
+      --danger: #FF3D00;
     }
 
     body {
-      background-color: #f4f6f9;
-      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.6;
     }
 
+    /* Navbar (igual al diseño anterior) */
     .navbar {
-      background-color: var(--nintendo-red);
+      background-color: var(--card-bg);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      animation: fadeInDown 0.5s ease-out;
     }
-
-    .navbar-brand, .nav-link {
-      color: white !important;
-      font-weight: 500;
+    
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: var(--primary);
+      text-decoration: none;
     }
-
-    .btn-logout {
-      border: 1px solid #fff;
+    
+    .navbar-brand i {
+      margin-right: 10px;
+      font-size: 1.5rem;
+    }
+    
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--primary);
       color: white;
-      background: transparent;
-      border-radius: 6px;
-      padding: 6px 12px;
-      margin-left: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    
+    .user-avatar:hover {
+      transform: scale(1.05);
     }
 
+    /* Form Container */
     .form-container {
-      max-width: 800px;
-      margin: 50px auto;
-      background: #fff;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      max-width: 850px;
+      margin: 2rem auto;
+      background: var(--card-bg);
+      padding: 0;
+      border-radius: 16px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      animation: fadeInUp 0.5s ease-out;
     }
 
+    /* Form Title */
+    .form-title {
+      background: var(--primary);
+      color: #fff;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .form-title h3 {
+      margin: 0;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-title i {
+      margin-right: 10px;
+    }
+
+    /* Form Body */
+    .form-body {
+      padding: 2rem;
+    }
+
+    /* Form Elements */
     label {
       font-weight: 500;
+      color: var(--primary-dark);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .form-control, .form-select {
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.25rem rgba(41,100,142,0.25);
+    }
+
+    textarea.form-control {
+      min-height: 120px;
+    }
+
+    /* Date Inputs */
+    .form-control[type="date"] {
+      position: relative;
+    }
+
+    .form-control[type="date"]::-webkit-calendar-picker-indicator {
+      background: transparent;
+      bottom: 0;
+      color: transparent;
+      cursor: pointer;
+      height: auto;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: auto;
+    }
+
+    /* Buttons */
+    .btn {
+      border-radius: 8px;
+      font-weight: 500;
+      padding: 0.6rem 1.25rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      border-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: var(--text-light);
+      border-color: var(--text-light);
+    }
+
+    .btn-outline-primary {
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-outline-primary:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .form-container {
+        margin: 1.5rem;
+      }
+      
+      .form-body {
+        padding: 1.5rem;
+      }
+      
+      .form-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
     }
   </style>
 </head>
 <body>
 
-<!-- 🔺 NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark px-4">
-  <a class="navbar-brand" href="/dashboard"><i class="fas fa-gamepad me-2"></i> Projects-JMC</a>
-  <div class="collapse navbar-collapse">
-    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-      <li class="nav-item"><a class="nav-link" href="/dashboard">Home</a></li>
-      <li class="nav-item"><a class="nav-link active" href="/proyectos">Proyectos</a></li>
-      <li class="nav-item"><a class="nav-link" href="/tareas">Tareas</a></li>
-      <li class="nav-item"><a class="nav-link" href="/usuarios">Usuarios</a></li>
-    </ul>
-    <form th:action="@{/logout}" method="post" class="d-flex">
-      <button type="submit" class="btn btn-logout">Cerrar sesión</button>
-    </form>
+<!-- NAVBAR (IGUAL AL DISEÑO ANTERIOR) -->
+<nav class="navbar">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/dashboard">
+      <i class="fas fa-project-diagram"></i>
+      Projects-JMC
+    </a>
+    
+    <div class="user-menu">
+      <button class="btn btn-sm btn-outline-secondary me-2" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+      
+      <div class="user-avatar" data-bs-toggle="dropdown">
+        <span>US</span>
+      </div>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Mi perfil</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Configuración</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <form th:action="@{/logout}" method="post">
+            <button type="submit" class="dropdown-item">
+              <i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
   </div>
 </nav>
 
-<!-- 📝 FORMULARIO -->
+<!-- FORMULARIO DE PROYECTO -->
 <div class="form-container">
-  <a th:href="@{/proyectos}" class="btn btn-outline-primary mb-3"><i class="fas fa-arrow-left"></i> Volver</a>
+  <div class="form-title">
+    <a th:href="@{/proyectos}" class="btn btn-outline-light">
+      <i class="fas fa-arrow-left"></i> Volver
+    </a>
+    <h3>
+      <i class="fas" th:classappend="${proyecto.id == null} ? 'fa-plus-circle' : 'fa-edit'"></i> 
+      <span th:text="${proyecto.id == null} ? 'Nuevo Proyecto' : 'Editar Proyecto'"></span>
+    </h3>
+  </div>
 
-  <h3 th:text="${proyecto.id == null} ? '➕ Nuevo Proyecto' : '✏ Editar Proyecto'"></h3>
+  <div class="form-body">
+    <form th:action="${proyecto.id == null} ? @{/proyectos} : @{/proyectos/actualizar/{id}(id=${proyecto.id})}"
+          th:object="${proyecto}" method="post">
 
-  <form th:action="${proyecto.id == null} ? @{/proyectos} : @{/proyectos/actualizar/{id}(id=${proyecto.id})}"
-        th:object="${proyecto}" method="post">
-
-    <div class="mb-3">
-      <label for="nombre">Nombre del Proyecto</label>
-      <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
-    </div>
-
-    <div class="mb-3">
-      <label for="descripcion">Descripción</label>
-      <textarea class="form-control" id="descripcion" rows="4" th:field="*{descripcion}" placeholder="Describe el propósito o alcance del proyecto..."></textarea>
-    </div>
-
-    <div class="row mb-3">
-      <div class="col-md-6">
-        <label for="fechaInicio">Fecha de Inicio</label>
-        <input type="date" class="form-control" id="fechaInicio" th:field="*{fechaInicio}" required>
+      <div class="mb-4">
+        <label for="nombre">
+          <i class="fas fa-tag me-1"></i> Nombre del Proyecto
+        </label>
+        <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required
+               placeholder="Ingrese el nombre del proyecto">
       </div>
-      <div class="col-md-6">
-        <label for="fechaFin">Fecha de Fin</label>
-        <input type="date" class="form-control" id="fechaFin" th:field="*{fechaFin}" required>
+
+      <div class="mb-4">
+        <label for="descripcion">
+          <i class="fas fa-align-left me-1"></i> Descripción
+        </label>
+        <textarea class="form-control" id="descripcion" th:field="*{descripcion}" 
+                  placeholder="Describe el propósito o alcance del proyecto..."></textarea>
       </div>
-    </div>
 
-    <div class="mb-3">
-      <label for="miembros">Miembros</label>
-      <input type="text" class="form-control" id="miembros" th:field="*{miembros}" placeholder="Ej: 5, 10, etc.">
-    </div>
+      <div class="row mb-4">
+        <div class="col-md-6 mb-3 mb-md-0">
+          <label for="fechaInicio">
+            <i class="fas fa-calendar-day me-1"></i> Fecha de Inicio
+          </label>
+          <input type="date" class="form-control" id="fechaInicio" th:field="*{fechaInicio}" required>
+        </div>
+        <div class="col-md-6">
+          <label for="fechaFin">
+            <i class="fas fa-calendar-check me-1"></i> Fecha de Fin
+          </label>
+          <input type="date" class="form-control" id="fechaFin" th:field="*{fechaFin}" required>
+        </div>
+      </div>
 
-    <div class="d-flex justify-content-between">
-      <a th:href="@{/proyectos}" class="btn btn-secondary"><i class="fas fa-undo"></i> Cancelar</a>
-      <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save"></i>
-        <span th:text="${proyecto.id == null} ? 'Guardar Proyecto' : 'Actualizar Proyecto'"></span>
-      </button>
-    </div>
-  </form>
+      <div class="mb-4">
+        <label for="miembros">
+          <i class="fas fa-users me-1"></i> Miembros
+        </label>
+        <input type="text" class="form-control" id="miembros" th:field="*{miembros}" 
+               placeholder="Ej: 5, 10, etc.">
+      </div>
+
+      <div class="d-flex justify-content-between">
+        <a th:href="@{/proyectos}" class="btn btn-secondary">
+          <i class="fas fa-times"></i> Cancelar
+        </a>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> 
+          <span th:text="${proyecto.id == null} ? 'Guardar Proyecto' : 'Actualizar Proyecto'"></span>
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Animaciones al cargar
+  document.addEventListener('DOMContentLoaded', function() {
+    const formElements = document.querySelectorAll('.form-control, .form-select, .btn');
+    
+    formElements.forEach((el, index) => {
+      el.style.opacity = 0;
+      el.style.transform = 'translateY(10px)';
+      el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      el.style.transitionDelay = `${index * 0.05}s`;
+      
+      setTimeout(() => {
+        el.style.opacity = 1;
+        el.style.transform = 'translateY(0)';
+      }, 100);
+    });
+  });
+</script>
 </body>
 </html>

@@ -25,7 +25,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 // Acceso libre
-                .requestMatchers("/register", "/login", "/home", "/css/**", "/js/**", "/api/auth/**").permitAll()
+                .requestMatchers("/","/register", "/login", "/home", "/css/**", "/js/**", "/api/auth/**").permitAll()
 
                 // Rutas solo para ADMIN
                 .requestMatchers("/tareas/nueva", "/tareas/editar/**", "/tareas/eliminar/**").hasRole("ADMIN")

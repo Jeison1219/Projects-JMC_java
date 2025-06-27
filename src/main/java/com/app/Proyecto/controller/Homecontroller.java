@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class Homecontroller {
 
-    @GetMapping("/home")
+    @GetMapping({"/", "/home"})
     public String home() {
         return "home"; // Busca home.html en /resources/templates/
     }

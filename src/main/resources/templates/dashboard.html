@@ -428,10 +428,7 @@
                 Projects-JMC
             </a>
             
-            <div class="user-menu">
-                <button class="btn btn-sm btn-outline-secondary me-2" id="sidebarToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
+         
                 
                 <div class="user-avatar" data-bs-toggle="dropdown">
                     <span th:text="${username.substring(0, 2).toUpperCase()}">US</span>
@@ -458,9 +455,9 @@
         <aside class="sidebar" id="sidebar">
 <ul class="sidebar-menu">
     <li class="menu-item">
-        <a href="/home" class="menu-link active">
+        <a href="/dashboard" class="menu-link active">
             <i class="fas fa-home"></i>
-            <span>Inicio</span>
+            <span>Dashboard</span>
         </a>
     </li>
     <li class="menu-item">
@@ -477,13 +474,7 @@
     </li>
 </ul>
 
-               
-                <li class="menu-item">
-                    <a href="#" class="menu-link">
-                        <i class="fas fa-cog"></i>
-                        <span>Configuración</span>
-                    </a>
-                </li>
+            
             </ul>
         </aside>
         
@@ -493,8 +484,9 @@
             <div class="welcome-card">
                 <h1 class="welcome-title">¡Bienvenid@, <span th:text="${username}">Usuario</span>!</h1>
                 <p class="welcome-text">Has iniciado sesión correctamente en Projects-JMC. Aquí puedes gestionar todos tus proyectos, tareas y equipo de trabajo de manera eficiente.</p>
-                <a href="#" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i> Nuevo Proyecto
+              <a href="/proyectos" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i> Nuevo Proyecto
+</a>
                 </a>
             </div>
             
