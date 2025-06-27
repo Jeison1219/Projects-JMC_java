@@ -442,43 +442,69 @@
     </div>
 
     <!-- Filtros -->
-    <div class="tareas-card">
-      <form class="row g-3 filter-form">
-        <div class="col-md-3">
-          <select class="form-select" name="proyecto">
-            <option selected>Todos los proyectos</option>
-            <option>Proyecto 1</option>
-            <option>Proyecto 2</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <select class="form-select" name="estado">
-            <option selected>Todos</option>
-            <option value="true">Completadas</option>
-            <option value="false">Pendientes</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <select class="form-select" name="prioridad">
-            <option selected>Todas</option>
-            <option>Alta</option>
-            <option>Media</option>
-            <option>Baja</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <input type="date" class="form-control" name="fechaLimite">
-        </div>
-        <div class="col-md-3 d-flex gap-2">
-          <button type="submit" class="btn btn-primary w-100">
-            <i class="fas fa-filter me-1"></i> Filtrar
-          </button>
-          <a href="/tareas" class="btn btn-outline-secondary">
-            <i class="fas fa-redo"></i>
-          </a>
-        </div>
-      </form>
+  <div class="tareas-card">
+  <form class="row g-3 filter-form" method="get" th:action="@{/tareas}">
+
+    <!-- Proyecto -->
+    <div class="col-md-3">
+      <label for="proyectoId" class="form-label">Proyecto asociado</label>
+      <select class="form-select" id="proyectoId" name="proyectoId">
+        <option value="">Todos los proyectos</option>
+        <option th:each="p : ${proyectos}"
+                th:value="${p.id}"
+                th:text="${p.nombre}"
+                th:selected="${p.id} == ${proyectoId}">
+        </option>
+      </select>
     </div>
+
+    <!-- Estado -->
+    <div class="col-md-2">
+      <label for="completada" class="form-label">Estado</label>
+      <select class="form-select" id="completada" name="completada">
+        <option value="" th:selected="${completada == null}">Todos</option>
+        <option value="true" th:selected="${completada == true}">Completada</option>
+        <option value="false" th:selected="${completada == false}">Pendiente</option>
+      </select>
+    </div>
+
+    <!-- Prioridad -->
+    <div class="col-md-2">
+      <label for="prioridad" class="form-label">Prioridad</label>
+      <select class="form-select" id="prioridad" name="prioridad">
+        <option value="" th:selected="${prioridad == null}">Todas</option>
+        <option value="Alta" th:selected="${prioridad == 'Alta'}">Alta</option>
+        <option value="Media" th:selected="${prioridad == 'Media'}">Media</option>
+        <option value="Baja" th:selected="${prioridad == 'Baja'}">Baja</option>
+      </select>
+    </div>
+
+    <!-- Fecha Inicio -->
+    <div class="col-md-2">
+      <label for="fechaInicio" class="form-label">Fecha Inicio</label>
+      <input type="date" class="form-control" id="fechaInicio" name="fechaInicio"
+             th:value="${fechaInicio}">
+    </div>
+
+    <!-- Fecha Fin -->
+    <div class="col-md-2">
+      <label for="fechaFin" class="form-label">Fecha Fin</label>
+      <input type="date" class="form-control" id="fechaFin" name="fechaFin"
+             th:value="${fechaFin}">
+    </div>
+
+    <!-- Botones -->
+    <div class="col-md-1 d-flex align-items-end gap-2">
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-filter me-1"></i>
+      </button>
+      <a href="/tareas" class="btn btn-outline-secondary">
+        <i class="fas fa-redo"></i>
+      </a>
+    </div>
+
+  </form>
+</div>
 
     <!-- Tabla de tareas -->
     <div class="tareas-card">

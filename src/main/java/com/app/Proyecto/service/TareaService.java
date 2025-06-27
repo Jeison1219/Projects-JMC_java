@@ -5,10 +5,13 @@ import com.app.Proyecto.model.Tarea;
 import com.app.Proyecto.model.User;
 import com.app.Proyecto.repository.TareaRepository;
 import com.app.Proyecto.repository.UserRepository;
-
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -48,11 +51,11 @@ public class TareaService {
         existente.setFechaLimite(nueva.getFechaLimite());
         existente.setPrioridad(nueva.getPrioridad());
         existente.setProyecto(nueva.getProyecto());
-        existente.setCompletada(nueva.isCompletada()); // ✅ Importante
+        existente.setCompletada(nueva.isCompletada());
         tareaRepository.save(existente);
     }
 
-    // 🔍 Buscar por ID (usado en detalles, editar, etc.)
+    // 🔍 Buscar por ID
     public Tarea buscarPorId(Long id) {
         return tareaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Tarea no encontrada con ID: " + id));
@@ -66,8 +69,47 @@ public class TareaService {
         tarea.setUsuario(usuario);
         tareaRepository.save(tarea);
     }
-    public List<Tarea> listarTareasPorProyecto(Proyecto proyecto) {
-    return tareaRepository.findByProyecto(proyecto);
-}
 
+    public List<Tarea> listarTareasPorProyecto(Proyecto proyecto) {
+        return tareaRepository.findByProyecto(proyecto);
+    }
+
+    // 🔍 Buscar con filtros dinámicos
+    public List<Tarea> buscarTareasConFiltros(User usuario, String titulo, Boolean completada, String prioridad,
+                                              Long proyectoId, LocalDate fechaInicio, LocalDate fechaFin) {
+
+        Specification<Tarea> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(cb.equal(root.get("usuario"), usuario));
+
+            if (titulo != null && !titulo.isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("titulo")), "%" + titulo.toLowerCase() + "%"));
+            }
+
+            if (completada != null) {
+                predicates.add(cb.equal(root.get("completada"), completada));
+            }
+
+            if (prioridad != null && !prioridad.isEmpty()) {
+                predicates.add(cb.equal(cb.lower(root.get("prioridad")), prioridad.toLowerCase()));
+            }
+
+            if (proyectoId != null) {
+                predicates.add(cb.equal(root.get("proyecto").get("id"), proyectoId));
+            }
+
+            if (fechaInicio != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("fechaLimite"), fechaInicio));
+            }
+
+            if (fechaFin != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("fechaLimite"), fechaFin));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return tareaRepository.findAll(spec);
+    }
 }

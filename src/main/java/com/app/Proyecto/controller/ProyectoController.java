@@ -5,10 +5,12 @@ import com.app.Proyecto.model.Tarea;
 import com.app.Proyecto.service.ProyectoService;
 import com.app.Proyecto.service.TareaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -20,8 +22,19 @@ public class ProyectoController {
     private final TareaService tareaService;
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("proyectos", proyectoService.listarTodos());
+    public String listar(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin,
+            Model model) {
+
+        List<Proyecto> proyectos = proyectoService.buscarProyectos(nombre, fechaInicio, fechaFin);
+
+        model.addAttribute("proyectos", proyectos);
+        model.addAttribute("nombre", nombre);
+        model.addAttribute("fechaInicio", fechaInicio);
+        model.addAttribute("fechaFin", fechaFin);
+
         return "proyecto-list";
     }
 
@@ -56,7 +69,6 @@ public class ProyectoController {
         return "redirect:/proyectos";
     }
 
-    // 🔍 Vista de detalles + tareas asociadas
     @GetMapping("/detalles/{id}")
     public String verDetalles(@PathVariable Long id, Model model) {
         Proyecto proyecto = proyectoService.buscarPorId(id);

@@ -439,38 +439,39 @@
     </div>
 
     <!-- Filtros -->
-    <div class="proyectos-card">
-      <form class="row g-3 filter-row">
-        <div class="col-md-3">
-          <select class="form-select" name="nombre">
-            <option selected>Todos los proyectos</option>
-            <option>Proyecto 1</option>
-            <option>Proyecto 2</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <select class="form-select" name="estado">
-            <option selected>Todos</option>
-            <option>Activo</option>
-            <option>Finalizado</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <input type="date" class="form-control" name="fechaInicio">
-        </div>
-        <div class="col-md-2">
-          <input type="date" class="form-control" name="fechaFin">
-        </div>
-        <div class="col-md-3 d-flex gap-2">
-          <button type="submit" class="btn btn-primary w-100">
-            <i class="fas fa-filter me-1"></i> Filtrar
-          </button>
-          <a href="/proyectos" class="btn btn-outline-secondary">
-            <i class="fas fa-redo"></i>
-          </a>
-        </div>
-      </form>
+<div class="proyectos-card">
+  <form class="row g-3 filter-row" method="get" th:action="@{/proyectos}">
+
+    <div class="col-md-4">
+      <label for="nombre" class="form-label">Nombre del proyecto</label>
+      <input type="text" class="form-control" id="nombre" name="nombre"
+             placeholder="Nombre del proyecto" th:value="${nombre}">
     </div>
+
+    <div class="col-md-3">
+      <label for="fechaInicio" class="form-label">Fecha de inicio</label>
+      <input type="date" class="form-control" id="fechaInicio" name="fechaInicio"
+             th:value="${fechaInicio != null ? fechaInicio : ''}">
+    </div>
+
+    <div class="col-md-3">
+      <label for="fechaFin" class="form-label">Fecha de fin</label>
+      <input type="date" class="form-control" id="fechaFin" name="fechaFin"
+             th:value="${fechaFin != null ? fechaFin : ''}">
+    </div>
+
+    <div class="col-md-2 d-flex align-items-end gap-2">
+      <button type="submit" class="btn btn-primary w-100">
+        <i class="fas fa-filter me-1"></i> Filtrar
+      </button>
+      <a href="/proyectos" class="btn btn-outline-secondary">
+        <i class="fas fa-redo"></i>
+      </a>
+    </div>
+
+  </form>
+</div>
+
 
     <!-- Tabla de proyectos -->
     <div class="proyectos-card">

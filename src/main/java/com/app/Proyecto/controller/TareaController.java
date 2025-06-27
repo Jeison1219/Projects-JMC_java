@@ -5,13 +5,16 @@ import com.app.Proyecto.model.User;
 import com.app.Proyecto.repository.UserRepository;
 import com.app.Proyecto.repository.ProyectoRepository;
 import com.app.Proyecto.service.TareaService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -22,11 +25,30 @@ public class TareaController {
     private final UserRepository userRepository;
     private final ProyectoRepository proyectoRepository;
 
-    // 📋 Mostrar lista de tareas del usuario autenticado
+    // 📋 Mostrar lista de tareas con filtros
     @GetMapping
-    public String listar(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+    public String listar(
+            @RequestParam(required = false) String titulo,
+            @RequestParam(required = false) Boolean completada,
+            @RequestParam(required = false) String prioridad,
+            @RequestParam(required = false) Long proyectoId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin,
+            @AuthenticationPrincipal UserDetails userDetails,
+            Model model
+    ) {
         User usuario = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
-        model.addAttribute("tareas", tareaService.listarTareasPorUsuario(usuario));
+        List<Tarea> tareas = tareaService.buscarTareasConFiltros(usuario, titulo, completada, prioridad, proyectoId, fechaInicio, fechaFin);
+
+        model.addAttribute("tareas", tareas);
+        model.addAttribute("proyectos", proyectoRepository.findAll());
+        model.addAttribute("titulo", titulo);
+        model.addAttribute("completada", completada);
+        model.addAttribute("prioridad", prioridad);
+        model.addAttribute("proyectoId", proyectoId);
+        model.addAttribute("fechaInicio", fechaInicio);
+        model.addAttribute("fechaFin", fechaFin);
+
         return "tareas";
     }
 
