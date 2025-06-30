@@ -98,8 +98,7 @@
     
     .menu-item {
       margin-bottom: 0.5rem;
-      animation: fadeInUp 0.5s ease-out;
-      animation-fill-mode: both;
+    
     }
     
     .menu-item:nth-child(1) { animation-delay: 0.2s; }
@@ -291,84 +290,60 @@
     }
 
     /* Animations */
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeInDown {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeInLeft {
-      from {
-        opacity: 0;
-        transform: translateX(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    /* Responsive */
-    @media (max-width: 992px) {
-      .main-container {
-        grid-template-columns: 1fr;
-      }
-      
-      .sidebar {
-        position: fixed;
-        top: 70px;
-        left: -100%;
-        width: 240px;
-        height: calc(100vh - 70px);
-        z-index: 900;
-      }
-      
-      .sidebar.active {
-        left: 0;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .content {
-        padding: 1.5rem;
-      }
-      
-      .top-actions {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      
-      .filter-form .col-md-3, 
-      .filter-form .col-md-2 {
-        width: 100%;
-        margin-bottom: 0.5rem;
-      }
-    }
+      @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 240px;
+                height: calc(100vh - 70px);
+                z-index: 900;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
   </style>
 </head>
 <body>
-
+   
+    
 <!-- NAVBAR -->
 <nav class="navbar">
   <div class="container-fluid">
@@ -379,9 +354,9 @@
     
    
       
-      <div class="user-avatar" data-bs-toggle="dropdown">
-        <span>US</span>
-      </div>
+    <div class="user-avatar" data-bs-toggle="dropdown">
+  <span th:text="${username.substring(0, 2).toUpperCase()}">US</span>
+</div>
       <ul class="dropdown-menu dropdown-menu-end">
         <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Mi perfil</a></li>
         <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Configuración</a></li>
@@ -571,27 +546,28 @@
     document.getElementById('sidebar').classList.toggle('active');
   });
 
-  // Animaciones al cargar
-  document.addEventListener('DOMContentLoaded', function() {
-    const animateElements = document.querySelectorAll('.table tr, .tareas-card');
-    
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = 1;
-          entry.target.style.transform = 'translateY(0)';
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
-    
-    animateElements.forEach(el => {
-      el.style.opacity = 0;
-      el.style.transform = 'translateY(20px)';
-      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-      observer.observe(el);
-    });
-  });
+  // Simple animation trigger
+document.addEventListener('DOMContentLoaded', function() {
+            const animateElements = document.querySelectorAll('.stat-card, .project-card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            animateElements.forEach(el => {
+                el.style.opacity = 0;
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+                observer.observe(el);
+            });
+        });
+  
 </script>
 </body>
 </html>

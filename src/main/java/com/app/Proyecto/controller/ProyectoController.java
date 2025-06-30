@@ -6,6 +6,8 @@ import com.app.Proyecto.service.ProyectoService;
 import com.app.Proyecto.service.TareaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,14 @@ public class ProyectoController {
     private final ProyectoService proyectoService;
     private final TareaService tareaService;
 
+    // Método que se ejecuta antes de cada petición para agregar el username al modelo
+    @ModelAttribute
+    public void addUsernameToModel(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        if (userDetails != null) {
+            model.addAttribute("username", userDetails.getUsername());
+        }
+    }
+
     @GetMapping
     public String listar(
             @RequestParam(required = false) String nombre,
@@ -29,7 +39,7 @@ public class ProyectoController {
             Model model) {
 
         List<Proyecto> proyectos = proyectoService.buscarProyectos(nombre, fechaInicio, fechaFin);
-
+        
         model.addAttribute("proyectos", proyectos);
         model.addAttribute("nombre", nombre);
         model.addAttribute("fechaInicio", fechaInicio);

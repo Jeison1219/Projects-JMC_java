@@ -25,6 +25,14 @@ public class TareaController {
     private final UserRepository userRepository;
     private final ProyectoRepository proyectoRepository;
 
+    // Método que se ejecuta antes de cada petición para agregar el username al modelo
+    @ModelAttribute
+    public void addUsernameToModel(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        if (userDetails != null) {
+            model.addAttribute("username", userDetails.getUsername());
+        }
+    }
+
     // 📋 Mostrar lista de tareas con filtros
     @GetMapping
     public String listar(
