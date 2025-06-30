@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
 
+
 public interface TareaRepository extends JpaRepository<Tarea, Long>, JpaSpecificationExecutor<Tarea> {
     List<Tarea> findByUsuario(User usuario);
     List<Tarea> findByProyecto(Proyecto proyecto);

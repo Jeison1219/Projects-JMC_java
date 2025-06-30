@@ -7,3 +7,4 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface ProyectoRepository extends JpaRepository<Proyecto, Long>, JpaSpecificationExecutor<Proyecto> {
     // Ya puedes usar Specification para filtros dinámicos
 }
+

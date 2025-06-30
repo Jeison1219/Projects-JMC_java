@@ -25,6 +25,8 @@ public class TareaService {
     public List<Tarea> listarTareasPorUsuario(User usuario) {
         return tareaRepository.findByUsuario(usuario);
     }
+    
+    
 
     // 💾 Crear nueva tarea
     public Tarea crearTarea(Tarea tarea) {

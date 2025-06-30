@@ -19,6 +19,7 @@ public class ProyectoService {
     public List<Proyecto> listarTodos() {
         return proyectoRepository.findAll();
     }
+    
 
     public List<Proyecto> buscarProyectos(String nombre, LocalDate fechaInicio, LocalDate fechaFin) {
         return proyectoRepository.findAll((root, query, cb) -> {
