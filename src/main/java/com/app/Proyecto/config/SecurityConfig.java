@@ -44,7 +44,7 @@ public class SecurityConfig {
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout")
+                .logoutSuccessUrl("/home")
                 .permitAll()
             )
             .userDetailsService(userDetailsService); // 💡 Usa tu servicio personalizado
