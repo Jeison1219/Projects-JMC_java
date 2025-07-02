@@ -36,6 +36,18 @@ public class UserService {
             .map(user -> user.getName())
             .orElse("Usuario");
 }
+public User getByEmail(String email) {
+    return userRepository.findByEmail(email).orElseThrow();
+}
+
+public void actualizarDatosUsuario(String email, User updated) {
+    User user = getByEmail(email);
+    user.setName(updated.getName());
+    user.setEmail(updated.getEmail());
+    // No cambiamos contraseña aquí por seguridad
+    userRepository.save(user);
+}
+
 
 
     // Login usando email y contraseña

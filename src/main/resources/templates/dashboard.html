@@ -335,8 +335,8 @@
                     <span th:text="${username.substring(0, 2).toUpperCase()}">US</span>
                 </div>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Mi perfil</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Configuración</a></li>
+                    <li><a class="dropdown-item" href="/perfil"><i class="fas fa-user me-2"></i> Mi perfil</a></li>
+                   
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <form th:action="@{/logout}" method="post">
@@ -443,57 +443,55 @@
             const randomTip = tips[Math.floor(Math.random() * tips.length)];
             document.getElementById("dailyTip").textContent = randomTip;
 
-            // Gráfica de prioridades
-            fetch('/api/tareas/prioridad')
-                .then(response => response.json())
-                .then(data => {
-                    const ctx = document.getElementById('chartPrioridad').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['Alta', 'Media', 'Baja'],
-                            datasets: [{
-                                label: 'Cantidad de tareas',
-                                data: [data.alta, data.media, data.baja],
-                                backgroundColor: [
-                                    'rgba(231, 76, 60, 0.8)',
-                                    'rgba(241, 196, 15, 0.8)',
-                                    'rgba(46, 204, 113, 0.8)'
-                                ],
-                                borderColor: [
-                                    'rgba(231, 76, 60, 1)',
-                                    'rgba(241, 196, 15, 1)',
-                                    'rgba(46, 204, 113, 1)'
-                                ],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom',
-                                    labels: {
-                                        padding: 20,
-                                        font: {
-                                            size: 14
-                                        }
-                                    }
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function(context) {
-                                            return `${context.label}: ${context.raw} tareas`;
-                                        }
-                                    }
-                                }
-                            },
-                            cutout: '65%'
+           fetch('/api/tareas/prioridad')
+    .then(response => response.json())
+    .then(data => {
+        const ctx = document.getElementById('chartPrioridad').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Alta', 'Media', 'Baja'],
+                datasets: [{
+                    label: 'Cantidad de tareas',
+                    data: [data.alta, data.media, data.baja],
+                    backgroundColor: [
+                        'rgba(142, 68, 173, 0.8)', // Morado
+                        'rgba(52, 152, 219, 0.8)', // Azul claro
+                        'rgba(230, 126, 34, 0.8)'  // Naranja coral
+                    ],
+                    borderColor: [
+                        'rgba(142, 68, 173, 1)',
+                        'rgba(52, 152, 219, 1)',
+                        'rgba(230, 126, 34, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 14
+                            }
                         }
-                    });
-                });
-
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw} tareas`;
+                            }
+                        }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+    });
             // Gráfico de Progreso (Completadas vs Pendientes)
             fetch('/api/tareas/progreso')
                 .then(response => response.json())
@@ -549,6 +547,9 @@
                 .then(data => {
                     document.getElementById('tareasPendientes').textContent = data;
                 });
+function getCssVariable(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
 
             // Intersection Observer para animaciones
             const animateElements = document.querySelectorAll('.welcome-card, .tip-card, .chart-card, .pending-tasks-card');

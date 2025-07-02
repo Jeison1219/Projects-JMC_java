@@ -361,8 +361,8 @@
   <span th:text="${username.substring(0, 2).toUpperCase()}">US</span>
 </div>
       <ul class="dropdown-menu dropdown-menu-end">
-        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Mi perfil</a></li>
-        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Configuración</a></li>
+        <li><a class="dropdown-item" href="/perfil"><i class="fas fa-user me-2"></i> Mi perfil</a></li>
+    
         <li><hr class="dropdown-divider"></li>
         <li>
           <form th:action="@{/logout}" method="post">

@@ -10,6 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import com.app.Proyecto.model.User;
+
 
 import java.security.Principal;
 import java.util.HashMap;
@@ -92,4 +94,23 @@ public String dashboard(Model model, Principal principal) {
     model.addAttribute("username", nombre); // Ahora se mostrará el nombre en lugar del correo
     return "dashboard";
 }
+@GetMapping("/perfil")
+public String perfil(Model model, Principal principal) {
+    String email = principal.getName();
+    var user = userService.getByEmail(email);
+
+    model.addAttribute("user", user);
+    return "perfil"; // vista perfil.html
 }
+@PostMapping("/perfil")
+public String actualizarPerfil(@ModelAttribute("user") User updatedUser, Principal principal, Model model) {
+    String email = principal.getName();
+    userService.actualizarDatosUsuario(email, updatedUser);
+    model.addAttribute("user", updatedUser);
+    model.addAttribute("success", "Perfil actualizado correctamente.");
+    return "perfil";
+    
+}
+
+}
+
