@@ -169,85 +169,60 @@
             max-width: 600px;
         }
         
-        /* Stats Grid */
-        .stats-grid {
+        /* Tip Card */
+        .tip-card {
+            background: #fef9e7;
+            border-left: 5px solid #f1c40f;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            animation: fadeInUp 0.8s ease-out;
+            animation-delay: 0.2s;
+            animation-fill-mode: both;
+        }
+        
+        .tip-title {
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+        }
+        
+        .tip-title i {
+            margin-right: 10px;
+            color: #f1c40f;
+        }
+        
+        .tip-text {
+            margin: 0;
+            font-style: italic;
+            color: var(--text);
+        }
+        
+        /* Charts Container */
+        .charts-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
             margin-bottom: 2rem;
         }
         
-        .stat-card {
+        .chart-card {
             background: var(--card-bg);
             border-radius: 16px;
             padding: 1.5rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.03);
             border: 1px solid var(--border);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
             animation: fadeInUp 0.8s ease-out;
             animation-fill-mode: both;
         }
         
-        .stat-card:nth-child(1) { animation-delay: 0.2s; }
-        .stat-card:nth-child(2) { animation-delay: 0.4s; }
-        .stat-card:nth-child(3) { animation-delay: 0.6s; }
-        .stat-card:nth-child(4) { animation-delay: 0.8s; }
+        .chart-card:nth-child(1) { animation-delay: 0.3s; }
+        .chart-card:nth-child(2) { animation-delay: 0.5s; }
         
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-        }
-        
-        .stat-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .stat-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(41,100,142,0.1);
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .chart-title {
             font-size: 1.2rem;
-            margin-right: 1rem;
-        }
-        
-        .stat-title {
-            font-weight: 500;
-            color: var(--text-light);
-            font-size: 0.95rem;
-        }
-        
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-        
-        .stat-change {
-            display: flex;
-            align-items: center;
-            font-size: 0.85rem;
-            color: var(--text-light);
-        }
-        
-        .stat-change.positive {
-            color: var(--success);
-        }
-        
-        .stat-change.negative {
-            color: var(--danger);
-        }
-        
-        /* Recent Projects */
-        .section-title {
-            font-size: 1.5rem;
             font-weight: 600;
             margin-bottom: 1.5rem;
             color: var(--primary-dark);
@@ -255,116 +230,47 @@
             align-items: center;
         }
         
-        .section-title i {
-            margin-right: 12px;
+        .chart-title i {
+            margin-right: 10px;
             color: var(--primary);
         }
         
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
         }
         
-        .project-card {
+        /* Pending Tasks Card */
+        .pending-tasks-card {
             background: var(--card-bg);
             border-radius: 16px;
-            overflow: hidden;
+            padding: 1.5rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.03);
             border: 1px solid var(--border);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
             animation: fadeInUp 0.8s ease-out;
+            animation-delay: 0.7s;
             animation-fill-mode: both;
         }
         
-        .project-card:nth-child(1) { animation-delay: 0.3s; }
-        .project-card:nth-child(2) { animation-delay: 0.5s; }
-        .project-card:nth-child(3) { animation-delay: 0.7s; }
-        
-        .project-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-        }
-        
-        .project-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .project-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        
-        .project-meta {
+        .pending-tasks-content {
             display: flex;
-            align-items: center;
-            font-size: 0.85rem;
-            color: var(--text-light);
-        }
-        
-        .project-meta i {
-            margin-right: 5px;
-        }
-        
-        .project-body {
-            padding: 1.5rem;
-        }
-        
-        .project-description {
-            color: var(--text-light);
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
-        }
-        
-        .project-progress {
-            margin-bottom: 1.5rem;
-        }
-        
-        .progress-text {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .progress-bar {
-            height: 6px;
-            background: #e9ecef;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: var(--primary);
-            border-radius: 3px;
-            transition: width 0.5s ease;
-        }
-        
-        .project-members {
-            display: flex;
-            align-items: center;
-        }
-        
-        .member-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: #e9ecef;
-            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-right: -8px;
-            border: 2px solid white;
+            height: 100%;
         }
         
-        .member-avatar.more {
-            background: var(--primary-light);
-            color: white;
+        .pending-tasks-count {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .pending-tasks-label {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            text-align: center;
         }
         
         /* Animations */
@@ -409,11 +315,7 @@
         }
         
         @media (max-width: 576px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .projects-grid {
+            .charts-container {
                 grid-template-columns: 1fr;
             }
         }
@@ -428,8 +330,7 @@
                 Projects-JMC
             </a>
             
-         
-                
+            <div class="user-menu">
                 <div class="user-avatar" data-bs-toggle="dropdown">
                     <span th:text="${username.substring(0, 2).toUpperCase()}">US</span>
                 </div>
@@ -453,229 +354,204 @@
     <div class="main-container">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
-<ul class="sidebar-menu">
-    <li class="menu-item">
-        <a href="/dashboard" class="menu-link active">
-            <i class="fas fa-home"></i>
-            <span>Dashboard</span>
-        </a>
-    </li>
-    <li class="menu-item">
-        <a href="/proyectos" class="menu-link">
-            <i class="fas fa-project-diagram"></i>
-            <span>Proyectos</span>
-        </a>
-    </li>
-    <li class="menu-item">
-        <a href="/tareas" class="menu-link">
-            <i class="fas fa-tasks"></i>
-            <span>Tareas</span>
-        </a>
-    </li>
-</ul>
-
-            
+            <ul class="sidebar-menu">
+                <li class="menu-item">
+                    <a href="/dashboard" class="menu-link active">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/proyectos" class="menu-link">
+                        <i class="fas fa-project-diagram"></i>
+                        <span>Proyectos</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/tareas" class="menu-link">
+                        <i class="fas fa-tasks"></i>
+                        <span>Tareas</span>
+                    </a>
+                </li>
             </ul>
         </aside>
-        
+
         <!-- Content -->
         <main class="content">
             <!-- Welcome Card -->
             <div class="welcome-card">
                 <h1 class="welcome-title">¡Bienvenid@, <span th:text="${username}">Usuario</span>!</h1>
-                <p class="welcome-text">Has iniciado sesión correctamente en Projects-JMC. Aquí puedes gestionar todos tus proyectos, tareas y equipo de trabajo de manera eficiente.</p>
-              <a href="/proyectos" class="btn btn-primary">
-    <i class="fas fa-plus me-2"></i> Nuevo Proyecto
-</a>
+                <p class="welcome-text">
+                    Has iniciado sesión correctamente en Projects-JMC. Aquí puedes gestionar todos tus proyectos, tareas y equipo de trabajo de manera eficiente.
+                </p>
+                <a href="/proyectos" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i> Nuevo Proyecto
                 </a>
             </div>
             
-            <!-- Stats Grid -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon">
-                            <i class="fas fa-project-diagram"></i>
-                        </div>
-                        <div>
-                            <div class="stat-title">Proyectos Activos</div>
-                            <div class="stat-value">5</div>
-                        </div>
-                    </div>
-                    <div class="stat-change positive">
-                        <i class="fas fa-arrow-up me-1"></i>
-                        <span>2 desde la semana pasada</span>
+            <!-- Tip del Día -->
+            <div class="tip-card">
+                <h3 class="tip-title"><i class="fas fa-lightbulb"></i> Tip del Día</h3>
+                <p class="tip-text" id="dailyTip">Cargando consejo...</p>
+            </div>
+            
+            <!-- Charts Section -->
+            <div class="charts-container">
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Tareas por Prioridad</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="chartPrioridad"></canvas>
                     </div>
                 </div>
                 
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon">
-                            <i class="fas fa-tasks"></i>
-                        </div>
-                        <div>
-                            <div class="stat-title">Tareas Pendientes</div>
-                            <div class="stat-value">12</div>
-                        </div>
-                    </div>
-                    <div class="stat-change negative">
-                        <i class="fas fa-arrow-down me-1"></i>
-                        <span>3 nuevas</span>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div>
-                            <div class="stat-title">Miembros del Equipo</div>
-                            <div class="stat-value">8</div>
-                        </div>
-                    </div>
-                    <div class="stat-change">
-                        <i class="fas fa-minus me-1"></i>
-                        <span>Sin cambios</span>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon">
-                            <i class="fas fa-trophy"></i>
-                        </div>
-                        <div>
-                            <div class="stat-title">Proyectos Completados</div>
-                            <div class="stat-value">3</div>
-                        </div>
-                    </div>
-                    <div class="stat-change positive">
-                        <i class="fas fa-arrow-up me-1"></i>
-                        <span>1 este mes</span>
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Progreso de Tareas</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="chartProgreso"></canvas>
                     </div>
                 </div>
             </div>
             
-            <!-- Recent Projects -->
-            <h2 class="section-title">
-                <i class="fas fa-clock"></i>
-                Proyectos Recientes
-            </h2>
-            
-            <div class="projects-grid">
-                <!-- Project 1 -->
-                <div class="project-card">
-                    <div class="project-header">
-                        <h3 class="project-title">Rediseño de Sitio Web</h3>
-                        <div class="project-meta">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>Fecha límite: 15 Jun 2023</span>
-                        </div>
-                    </div>
-                    <div class="project-body">
-                        <p class="project-description">
-                            Rediseño completo del sitio web corporativo con enfoque en experiencia de usuario.
-                        </p>
-                        
-                        <div class="project-progress">
-                            <div class="progress-text">
-                                <span>Progreso</span>
-                                <span>75%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 75%"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="project-members">
-                            <div class="member-avatar" style="background-color: #FFD700;">AM</div>
-                            <div class="member-avatar" style="background-color: #4CAF50;">RP</div>
-                            <div class="member-avatar" style="background-color: #2196F3;">TG</div>
-                            <div class="member-avatar more">+2</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Project 2 -->
-                <div class="project-card">
-                    <div class="project-header">
-                        <h3 class="project-title">App Móvil</h3>
-                        <div class="project-meta">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>Fecha límite: 30 Jul 2023</span>
-                        </div>
-                    </div>
-                    <div class="project-body">
-                        <p class="project-description">
-                            Desarrollo de aplicación móvil para gestión de proyectos en iOS y Android.
-                        </p>
-                        
-                        <div class="project-progress">
-                            <div class="progress-text">
-                                <span>Progreso</span>
-                                <span>35%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 35%"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="project-members">
-                            <div class="member-avatar" style="background-color: #9C27B0;">LS</div>
-                            <div class="member-avatar" style="background-color: #FF5722;">MJ</div>
-                            <div class="member-avatar more">+3</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Project 3 -->
-                <div class="project-card">
-                    <div class="project-header">
-                        <h3 class="project-title">Migración a la Nube</h3>
-                        <div class="project-meta">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>Fecha límite: 10 Ago 2023</span>
-                        </div>
-                    </div>
-                    <div class="project-body">
-                        <p class="project-description">
-                            Migración de servidores locales a infraestructura en la nube AWS.
-                        </p>
-                        
-                        <div class="project-progress">
-                            <div class="progress-text">
-                                <span>Progreso</span>
-                                <span>15%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 15%"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="project-members">
-                            <div class="member-avatar" style="background-color: #607D8B;">DK</div>
-                            <div class="member-avatar" style="background-color: #795548;">PT</div>
-                            <div class="member-avatar more">+1</div>
-                        </div>
-                    </div>
+            <!-- Pending Tasks Card -->
+            <div class="pending-tasks-card">
+                <div class="pending-tasks-content">
+                    <div class="pending-tasks-count" id="tareasPendientes">...</div>
+                    <p class="pending-tasks-label">Tareas pendientes en tus proyectos</p>
+                    <a href="/tareas" class="btn btn-outline-primary">
+                        <i class="fas fa-tasks me-2"></i> Ver todas las tareas
+                    </a>
                 </div>
             </div>
         </main>
     </div>
-    
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Toggle sidebar on mobile
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('active');
-        });
-        
-        // Simple animation trigger
-        document.addEventListener('DOMContentLoaded', function() {
-            const animateElements = document.querySelectorAll('.stat-card, .project-card');
-            
+        document.addEventListener("DOMContentLoaded", function () {
+            // Tip del Día
+            const tips = [
+                "Divide tareas grandes en subtareas pequeñas y medibles.",
+                "Prioriza lo importante antes que lo urgente.",
+                "Planifica tu día en los primeros 5 minutos de trabajo.",
+                "Evita el multitasking: enfócate en una sola tarea.",
+                "Agrupa tareas similares para mantener el enfoque.",
+                "Termina tu día dejando clara la primera tarea de mañana.",
+                "Elimina tareas que no agregan valor real a tu proyecto."
+            ];
+            const randomTip = tips[Math.floor(Math.random() * tips.length)];
+            document.getElementById("dailyTip").textContent = randomTip;
+
+            // Gráfica de prioridades
+            fetch('/api/tareas/prioridad')
+                .then(response => response.json())
+                .then(data => {
+                    const ctx = document.getElementById('chartPrioridad').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Alta', 'Media', 'Baja'],
+                            datasets: [{
+                                label: 'Cantidad de tareas',
+                                data: [data.alta, data.media, data.baja],
+                                backgroundColor: [
+                                    'rgba(231, 76, 60, 0.8)',
+                                    'rgba(241, 196, 15, 0.8)',
+                                    'rgba(46, 204, 113, 0.8)'
+                                ],
+                                borderColor: [
+                                    'rgba(231, 76, 60, 1)',
+                                    'rgba(241, 196, 15, 1)',
+                                    'rgba(46, 204, 113, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 20,
+                                        font: {
+                                            size: 14
+                                        }
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `${context.label}: ${context.raw} tareas`;
+                                        }
+                                    }
+                                }
+                            },
+                            cutout: '65%'
+                        }
+                    });
+                });
+
+            // Gráfico de Progreso (Completadas vs Pendientes)
+            fetch('/api/tareas/progreso')
+                .then(response => response.json())
+                .then(data => {
+                    const ctx = document.getElementById('chartProgreso').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Completadas', 'Pendientes'],
+                            datasets: [{
+                                label: 'Tareas',
+                                data: [data.completadas, data.pendientes],
+                                backgroundColor: [
+                                    'rgba(46, 204, 113, 0.8)',
+                                    'rgba(231, 76, 60, 0.8)'
+                                ],
+                                borderColor: [
+                                    'rgba(46, 204, 113, 1)',
+                                    'rgba(231, 76, 60, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 20,
+                                        font: {
+                                            size: 14
+                                        }
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `${context.label}: ${context.raw} tareas`;
+                                        }
+                                    }
+                                }
+                            },
+                            cutout: '65%'
+                        }
+                    });
+                });
+
+            // Tareas Pendientes
+            fetch('/api/tareas/pendientes')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('tareasPendientes').textContent = data;
+                });
+
+            // Intersection Observer para animaciones
+            const animateElements = document.querySelectorAll('.welcome-card, .tip-card, .chart-card, .pending-tasks-card');
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -685,7 +561,7 @@
                     }
                 });
             }, { threshold: 0.1 });
-            
+
             animateElements.forEach(el => {
                 el.style.opacity = 0;
                 el.style.transform = 'translateY(20px)';

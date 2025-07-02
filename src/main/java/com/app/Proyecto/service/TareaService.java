@@ -9,9 +9,11 @@ import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import java.util.Map;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -25,6 +27,27 @@ public class TareaService {
     public List<Tarea> listarTareasPorUsuario(User usuario) {
         return tareaRepository.findByUsuario(usuario);
     }
+    // src/main/java/com/app/Proyecto/service/TareaService.java
+
+public long contarPorPrioridad(String prioridad) {
+    return tareaRepository.countByPrioridad(prioridad);
+}
+public long contarTareasPendientes() {
+    return tareaRepository.countByCompletada(false); // ✅
+}
+
+public Map<String, Long> obtenerEstadisticasProgreso() {
+    long completadas = tareaRepository.countByCompletadaTrue();
+    long pendientes = tareaRepository.countByCompletadaFalse();
+
+    Map<String, Long> estadisticas = new HashMap<>();
+    estadisticas.put("completadas", completadas);
+    estadisticas.put("pendientes", pendientes);
+    return estadisticas;
+}
+
+
+
     
     
 

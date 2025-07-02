@@ -85,9 +85,11 @@ public class AuthController {
     }
 
     // Dashboard tras login
-    @GetMapping("/dashboard")
-    public String dashboard(Model model, Principal principal) {
-        model.addAttribute("username", principal.getName());
-        return "dashboard";
-    }
+  @GetMapping("/dashboard")
+public String dashboard(Model model, Principal principal) {
+    String email = principal.getName(); // Este es el email
+    String nombre = userService.obtenerNombrePorEmail(email); // <-- Método que vamos a crear
+    model.addAttribute("username", nombre); // Ahora se mostrará el nombre en lugar del correo
+    return "dashboard";
+}
 }

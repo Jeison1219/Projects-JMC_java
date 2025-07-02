@@ -31,6 +31,12 @@ public class UserService {
     public boolean existsByEmail(String email) {
         return userRepository.findByEmail(email).isPresent(); // ✅ usar Optional correctamente
     }
+    public String obtenerNombrePorEmail(String email) {
+    return userRepository.findByEmail(email)
+            .map(user -> user.getName())
+            .orElse("Usuario");
+}
+
 
     // Login usando email y contraseña
     public boolean login(String email, String rawPassword) {

@@ -92,6 +92,7 @@ public class TareaController {
         tareaService.actualizar(id, tareaActualizada);
         return "redirect:/tareas";
     }
+    
 
     // ✅ Marcar tarea como completada
     @PostMapping("/completar/{id}")
