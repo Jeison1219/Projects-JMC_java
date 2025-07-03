@@ -410,7 +410,7 @@
         <a href="/tareas/nueva" class="btn btn-primary">
           <i class="fas fa-plus-circle me-1"></i> Nueva Tarea
         </a>
-        <a href="#" class="btn btn-danger">
+        <a th:href="@{/tareas/exportar-pdf(titulo=${titulo},completada=${completada},prioridad=${prioridad},proyectoId=${proyectoId},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}" class="btn btn-danger">
           <i class="fas fa-file-pdf me-1"></i> Exportar PDF
         </a>
       </div>
@@ -454,12 +454,7 @@
       </select>
     </div>
 
-    <!-- Fecha Inicio -->
-    <div class="col-md-2">
-      <label for="fechaInicio" class="form-label">Fecha Inicio</label>
-      <input type="date" class="form-control" id="fechaInicio" name="fechaInicio"
-             th:value="${fechaInicio}">
-    </div>
+   
 
     <!-- Fecha Fin -->
     <div class="col-md-2">

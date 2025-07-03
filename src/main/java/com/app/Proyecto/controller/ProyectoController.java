@@ -4,6 +4,7 @@ import com.app.Proyecto.model.Proyecto;
 import com.app.Proyecto.model.Tarea;
 import com.app.Proyecto.service.ProyectoService;
 import com.app.Proyecto.service.TareaService;
+import com.app.Proyecto.service.PDFService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,6 +23,25 @@ public class ProyectoController {
 
     private final ProyectoService proyectoService;
     private final TareaService tareaService;
+    private final PDFService pdfService;
+    @GetMapping("/exportar-pdf")
+    public org.springframework.http.ResponseEntity<byte[]> exportarPDF(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+        try {
+            List<Proyecto> proyectos = proyectoService.buscarProyectos(nombre, fechaInicio, fechaFin);
+            byte[] pdfBytes = pdfService.generateProjectsPDF(proyectos, nombre, fechaInicio, fechaFin);
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("filename", "Projects-JMC-Reporte.pdf");
+            return org.springframework.http.ResponseEntity.ok()
+                    .headers(headers)
+                    .body(pdfBytes);
+        } catch (Exception e) {
+            return org.springframework.http.ResponseEntity.internalServerError().build();
+        }
+    }
 
     // Método que se ejecuta antes de cada petición para agregar el username al modelo
     @ModelAttribute

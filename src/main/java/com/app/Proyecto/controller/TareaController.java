@@ -6,6 +6,7 @@ import com.app.Proyecto.repository.UserRepository;
 import com.app.Proyecto.repository.ProyectoRepository;
 import com.app.Proyecto.service.TareaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +25,9 @@ public class TareaController {
     private final TareaService tareaService;
     private final UserRepository userRepository;
     private final ProyectoRepository proyectoRepository;
+
+    @Autowired
+    private com.app.Proyecto.service.TareaPDFService tareaPDFService;
 
     // Método que se ejecuta antes de cada petición para agregar el username al modelo
     @ModelAttribute
@@ -122,5 +126,38 @@ public class TareaController {
     public String asignarUsuario(@PathVariable Long id, @RequestParam("usuarioId") Long usuarioId) {
         tareaService.asignarUsuario(id, usuarioId);
         return "redirect:/tareas/detalles/" + id;
+    }
+
+    // 📂 Exportar tareas a PDF
+    @GetMapping("/exportar-pdf")
+    public org.springframework.http.ResponseEntity<byte[]> exportarPDF(
+            @RequestParam(required = false) String titulo,
+            @RequestParam(required = false) Boolean completada,
+            @RequestParam(required = false) String prioridad,
+            @RequestParam(required = false) Long proyectoId,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fechaInicio,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fechaFin,
+            @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails
+    ) {
+        com.app.Proyecto.model.User usuario = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+        List<Tarea> tareas = tareaService.buscarTareasConFiltros(usuario, titulo, completada, prioridad, proyectoId, fechaInicio, fechaFin);
+        String proyectoNombre = null;
+        if (proyectoId != null) {
+            proyectoNombre = proyectoRepository.findById(proyectoId).map(p -> p.getNombre()).orElse("");
+        }
+        String estado = completada == null ? "" : (completada ? "Completada" : "Pendiente");
+        String fechaInicioStr = fechaInicio != null ? fechaInicio.toString() : "";
+        String fechaFinStr = fechaFin != null ? fechaFin.toString() : "";
+        try {
+            byte[] pdfBytes = tareaPDFService.generateTareasPDF(tareas, proyectoNombre, prioridad, estado, fechaInicioStr, fechaFinStr);
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("filename", "Tareas-Reporte.pdf");
+            return org.springframework.http.ResponseEntity.ok()
+                    .headers(headers)
+                    .body(pdfBytes);
+        } catch (Exception e) {
+            return org.springframework.http.ResponseEntity.internalServerError().build();
+        }
     }
 }
