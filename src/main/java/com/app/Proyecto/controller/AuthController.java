@@ -1,8 +1,11 @@
 package com.app.Proyecto.controller;
 
 import com.app.Proyecto.dto.UserRegistrationDto;
+import com.app.Proyecto.model.User;
+import com.app.Proyecto.service.AuthService;
 import com.app.Proyecto.service.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +13,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import com.app.Proyecto.model.User;
-
 
 import java.security.Principal;
 import java.util.HashMap;
@@ -22,27 +23,26 @@ import java.util.Map;
 public class AuthController {
 
     private final UserService userService;
+    private final AuthService authService;
 
-    // Mostrar formulario de registro
+    // ========= REGISTRO =========
+
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
         model.addAttribute("userDto", new UserRegistrationDto());
         return "register";
     }
 
-    // Procesar formulario de registro con validación
     @PostMapping("/register")
     public String registerWeb(
             @ModelAttribute("userDto") @Valid UserRegistrationDto userDto,
             BindingResult result,
             Model model) {
 
-        // Validación: contraseñas coinciden
         if (!userDto.getPassword().equals(userDto.getConfirmPassword())) {
             result.rejectValue("confirmPassword", null, "Las contraseñas no coinciden");
         }
 
-        // Validación: correo ya registrado
         if (userService.existsByEmail(userDto.getEmail())) {
             result.rejectValue("email", null, "Este correo ya está registrado");
         }
@@ -53,10 +53,9 @@ public class AuthController {
 
         userService.register(userDto);
         model.addAttribute("success", "Usuario registrado con éxito");
-        return "login"; // Redirige al login después del registro
+        return "login";
     }
 
-    // Registro vía API (JSON)
     @PostMapping("/api/auth/register")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> registerAPI(@RequestBody @Valid UserRegistrationDto userDto) {
@@ -80,37 +79,113 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    // Mostrar formulario de login
+    // ========= LOGIN Y PERFIL =========
+
     @GetMapping("/login")
     public String loginForm() {
         return "login";
     }
 
-    // Dashboard tras login
-  @GetMapping("/dashboard")
-public String dashboard(Model model, Principal principal) {
-    String email = principal.getName(); // Este es el email
-    String nombre = userService.obtenerNombrePorEmail(email); // <-- Método que vamos a crear
-    model.addAttribute("username", nombre); // Ahora se mostrará el nombre en lugar del correo
-    return "dashboard";
-}
-@GetMapping("/perfil")
-public String perfil(Model model, Principal principal) {
-    String email = principal.getName();
-    var user = userService.getByEmail(email);
+    @GetMapping("/dashboard")
+    public String dashboard(Model model, Principal principal) {
+        String email = principal.getName();
+        String nombre = userService.obtenerNombrePorEmail(email);
+        model.addAttribute("username", nombre);
+        return "dashboard";
+    }
 
-    model.addAttribute("user", user);
-    return "perfil"; // vista perfil.html
-}
-@PostMapping("/perfil")
-public String actualizarPerfil(@ModelAttribute("user") User updatedUser, Principal principal, Model model) {
-    String email = principal.getName();
-    userService.actualizarDatosUsuario(email, updatedUser);
-    model.addAttribute("user", updatedUser);
-    model.addAttribute("success", "Perfil actualizado correctamente.");
-    return "perfil";
-    
-}
+    @GetMapping("/perfil")
+    public String perfil(Model model, Principal principal) {
+        String email = principal.getName();
+        var user = userService.getByEmail(email);
+        model.addAttribute("user", user);
+        return "perfil";
+    }
 
-}
+    @PostMapping("/perfil")
+    public String actualizarPerfil(@ModelAttribute("user") User updatedUser, Principal principal, Model model) {
+        String email = principal.getName();
+        userService.actualizarDatosUsuario(email, updatedUser);
+        model.addAttribute("user", updatedUser);
+        model.addAttribute("success", "Perfil actualizado correctamente.");
+        return "perfil";
+    }
 
+    @PostMapping("/perfil/cambiar-password")
+    public String cambiarPasswordDesdePerfil(@RequestParam String actual,
+                                             @RequestParam String nueva,
+                                             @RequestParam String confirm,
+                                             Principal principal,
+                                             Model model) {
+        String email = principal.getName();
+
+        if (!nueva.equals(confirm)) {
+            model.addAttribute("errorPassword", "Las contraseñas no coinciden.");
+            model.addAttribute("user", userService.getByEmail(email));
+            return "perfil";
+        }
+
+        boolean ok = userService.verificarYActualizarPassword(email, actual, nueva);
+
+        if (!ok) {
+            model.addAttribute("errorPassword", "La contraseña actual es incorrecta.");
+        } else {
+            model.addAttribute("successPassword", "Contraseña actualizada con éxito.");
+        }
+
+        model.addAttribute("user", userService.getByEmail(email));
+        return "perfil";
+    }
+
+    // ========= RECUPERACIÓN DE CONTRASEÑA =========
+
+    @GetMapping("/recuperar")
+    public String mostrarFormularioRecuperar() {
+        return "solicitar-codigo";
+    }
+
+    @PostMapping("/enviar-codigo")
+    public String enviarCodigo(@RequestParam String email, HttpServletRequest request, Model model) {
+        String ip = request.getRemoteAddr();
+        boolean enviado = authService.enviarCodigo(email, ip);
+        if (enviado) {
+            model.addAttribute("email", email);
+            return "verificar-codigo";
+        } else {
+            model.addAttribute("error", "Correo no registrado");
+            return "solicitar-codigo";
+        }
+    }
+
+    @PostMapping("/verificar-codigo")
+    public String verificarCodigo(@RequestParam String email,
+                                  @RequestParam String codigo,
+                                  HttpServletRequest request,
+                                  Model model) {
+        String ip = request.getRemoteAddr();
+        boolean valido = authService.verificarCodigo(email, codigo, ip);
+        if (valido) {
+            model.addAttribute("email", email);
+            return "cambiar-password";
+        } else {
+            model.addAttribute("error", "Código inválido, expirado o IP diferente");
+            model.addAttribute("email", email);
+            return "verificar-codigo";
+        }
+    }
+
+    @PostMapping("/cambiar-password")
+    public String cambiarPassword(@RequestParam String email,
+                                  @RequestParam String password,
+                                  @RequestParam String confirm,
+                                  Model model) {
+        if (!password.equals(confirm)) {
+            model.addAttribute("error", "Las contraseñas no coinciden");
+            model.addAttribute("email", email);
+            return "cambiar-password";
+        }
+
+        authService.cambiarPassword(email, password);
+        return "redirect:/login?recuperacionExitosa";
+    }
+}

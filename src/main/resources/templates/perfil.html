@@ -367,7 +367,7 @@
     </nav>
     
 
-    <!-- Main Content -->
+   <!-- Main Content -->
     <div class="main-container">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
@@ -390,7 +390,6 @@
                         <span>Tareas</span>
                     </a>
                 </li>
-                
             </ul>
         </aside>
 
@@ -398,22 +397,22 @@
         <main class="content">
             <div class="profile-card">
                 <h1 class="profile-title"><i class="fas fa-user-circle"></i> Mi Perfil</h1>
-                
+
                 <!-- Avatar Section -->
                 <div class="avatar-section">
                     <div class="avatar-container">
-                        <div class="profile-avatar" th:text="${#strings.substring(user.name,0,1).toUpperCase() + (user.name.contains(' ') ? #strings.substring(user.name,user.name.indexOf(' ')+1,user.name.indexOf(' ')+2).toUpperCase() : '')}">
+                        <div class="profile-avatar"
+                             th:text="${#strings.substring(user.name,0,1).toUpperCase() + (user.name.contains(' ') ? #strings.substring(user.name,user.name.indexOf(' ')+1,user.name.indexOf(' ')+2).toUpperCase() : '')}">
                             US
                         </div>
-                        
                     </div>
                     <div class="avatar-info">
                         <div class="avatar-name" th:text="${user.name}">Nombre Usuario</div>
                         <div class="avatar-email" th:text="${user.email}">usuario@example.com</div>
                     </div>
                 </div>
-                
-                <!-- Profile Form -->
+
+                <!-- FORMULARIO 1: Datos de perfil -->
                 <form th:action="@{/perfil}" th:object="${user}" method="post">
                     <div class="mb-4">
                         <label for="name" class="form-label">Nombre Completo</label>
@@ -421,22 +420,53 @@
                     </div>
 
                     <div class="mb-4">
-    <label for="email" class="form-label">Correo Electrónico</label>
-  <input type="email" th:field="*{email}" class="form-control readonly-field" readonly>
-
-</div>
-
+                        <label for="email" class="form-label">Correo electrónico</label>
+                        <input type="email" name="email" id="email" class="form-control readonly-field"
+                               th:value="${user.email}" readonly>
+                    </div>
 
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i> Guardar Cambios
+                        <i class="fas fa-save me-2"></i> Guardar Cambios Perfil
                     </button>
 
                     <div class="success-message" th:if="${success}" th:text="${success}"></div>
                 </form>
+
+                <!-- SEPARADOR -->
+                <hr class="my-4">
+
+                <!-- FORMULARIO 2: Cambio de contraseña -->
+                <h2 class="profile-title"><i class="fas fa-lock"></i> Cambiar Contraseña</h2>
+
+                <form method="post" action="/perfil/cambiar-password">
+                    <div class="mb-3">
+                        <label for="actual" class="form-label">Contraseña actual</label>
+                        <input type="password" name="actual" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nueva" class="form-label">Nueva contraseña</label>
+                        <input type="password" name="nueva" class="form-control" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="confirm" class="form-label">Confirmar nueva contraseña</label>
+                        <input type="password" name="confirm" class="form-control" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-key me-2"></i> Cambiar Contraseña
+                    </button>
+
+                    <div class="success-message" th:if="${successPassword}" th:text="${successPassword}"></div>
+                    <div class="success-message" th:if="${errorPassword}" th:text="${errorPassword}"
+                         style="border-left-color: var(--danger); color: var(--danger); background-color: rgba(255, 61, 0, 0.1);">
+                    </div>
+                </form>
+
             </div>
         </main>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -461,6 +491,7 @@
                 }, 300);
             }
         });
+        
     </script>
 </body>
 </html>

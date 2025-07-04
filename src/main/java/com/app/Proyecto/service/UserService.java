@@ -26,6 +26,19 @@ public class UserService {
         user.setRole(userDto.getRole());
         userRepository.save(user);
     }
+    public boolean verificarYActualizarPassword(String email, String actual, String nueva) {
+    User user = userRepository.findByEmail(email).orElseThrow();
+    
+    // Verificamos si la contraseña actual es correcta
+    if (!passwordEncoder.matches(actual, user.getPassword())) {
+        return false;
+    }
+
+    // Si es correcta, actualizamos la contraseña
+    user.setPassword(passwordEncoder.encode(nueva));
+    userRepository.save(user);
+    return true;
+}
 
     // Para validación si el correo ya existe
     public boolean existsByEmail(String email) {

@@ -3,6 +3,8 @@ package com.app.Proyecto.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "users")
 @Data
@@ -19,10 +21,14 @@ public class User {
 
     private String password;
 
-    private String role; // si manejas múltiples roles puedes usar @ManyToOne en su lugar
+    private String role;
 
-    public User orElseThrow(Object object) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'orElseThrow'");
-    }
+    // Campos para recuperación de contraseña
+    private String codigoVerificacion;
+    private LocalDateTime codigoExpiracion;
+    private boolean codigoUsado = false;
+
+    private int intentosCodigo = 0;
+    private LocalDateTime ultimoIntento;
+    private String ipSolicitud;
 }
