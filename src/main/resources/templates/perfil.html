@@ -350,6 +350,7 @@
            <div class="user-avatar" data-bs-toggle="dropdown">
                     <span th:text="${user.name != null ? user.name.substring(0, 2).toUpperCase() : 'US'}">US</span>
                 </div>
+            
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="/perfil"><i class="fas fa-user me-2"></i> Mi perfil</a></li>
                    
@@ -398,19 +399,27 @@
             <div class="profile-card">
                 <h1 class="profile-title"><i class="fas fa-user-circle"></i> Mi Perfil</h1>
 
-                <!-- Avatar Section -->
-                <div class="avatar-section">
-                    <div class="avatar-container">
-                        <div class="profile-avatar"
-                             th:text="${#strings.substring(user.name,0,1).toUpperCase() + (user.name.contains(' ') ? #strings.substring(user.name,user.name.indexOf(' ')+1,user.name.indexOf(' ')+2).toUpperCase() : '')}">
-                            US
-                        </div>
-                    </div>
-                    <div class="avatar-info">
-                        <div class="avatar-name" th:text="${user.name}">Nombre Usuario</div>
-                        <div class="avatar-email" th:text="${user.email}">usuario@example.com</div>
-                    </div>
-                </div>
+<div class="avatar-section">
+    <div class="avatar-container">
+        <div class="profile-avatar"
+             th:text="${#strings.substring(user.name,0,1).toUpperCase() + (user.name.contains(' ') ? #strings.substring(user.name,user.name.indexOf(' ')+1,user.name.indexOf(' ')+2).toUpperCase() : '')}">
+            US
+        </div>
+    </div>
+    <div class="avatar-info">
+        <div class="d-flex align-items-center justify-content-between flex-wrap">
+            <div class="avatar-name" th:text="${user.name}">Nombre Usuario</div>
+            <div class="avatar-role d-flex align-items-center mt-2 mt-md-0"
+                 style="color: var(--text-light); font-size: 0.95rem;">
+                <i class="fas fa-user-tag me-1 text-secondary"></i>
+                <strong class="me-1">Rol:</strong>
+                <span th:text="${user.role}">ROL</span>
+            </div>
+        </div>
+        <div class="avatar-email mt-1" th:text="${user.email}">usuario@example.com</div>
+    </div>
+</div>
+
 
                 <!-- FORMULARIO 1: Datos de perfil -->
                 <form th:action="@{/perfil}" th:object="${user}" method="post">
@@ -418,6 +427,7 @@
                         <label for="name" class="form-label">Nombre Completo</label>
                         <input type="text" th:field="*{name}" class="form-control" required>
                     </div>
+
 
                     <div class="mb-4">
                         <label for="email" class="form-label">Correo electrónico</label>
