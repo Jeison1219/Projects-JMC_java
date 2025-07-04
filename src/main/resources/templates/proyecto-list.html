@@ -354,15 +354,14 @@
       <i class="fas fa-project-diagram"></i>
       Projects-JMC
     </a>
-    
-   
+    <div class="d-flex align-items-center gap-4">
       
-       <div class="user-avatar" data-bs-toggle="dropdown">
-  <span th:text="${username.substring(0, 2).toUpperCase()}">US</span>
-</div>
+      <!-- Usuario -->
+      <div class="user-avatar" data-bs-toggle="dropdown">
+        <span th:text="${username.substring(0, 2).toUpperCase()}">US</span>
+      </div>
       <ul class="dropdown-menu dropdown-menu-end">
         <li><a class="dropdown-item" href="/perfil"><i class="fas fa-user me-2"></i> Mi perfil</a></li>
-    
         <li><hr class="dropdown-divider"></li>
         <li>
           <form th:action="@{/logout}" method="post">
@@ -372,6 +371,7 @@
           </form>
         </li>
       </ul>
+    </div>
     </div>
   </div>
 </nav>
@@ -512,10 +512,34 @@
     document.getElementById('sidebar').classList.toggle('active');
   });
 
-  // Animaciones al cargar
+  // Notificaciones robustas
+  function cargarNotificaciones() {
+    const lista = document.getElementById('notificacionesLista');
+    const badge = document.getElementById('notificacionesBadge');
+    if (!lista || !badge) return;
+    fetch('/api/notificaciones')
+      .then(response => response.json())
+      .then(data => {
+        lista.innerHTML = '';
+        if (data.length === 0) {
+          lista.innerHTML = '<li class="dropdown-item text-muted">No hay notificaciones</li>';
+          badge.style.display = 'none';
+        } else {
+          data.forEach(n => {
+            const li = document.createElement('li');
+            li.className = 'dropdown-item';
+            li.innerHTML = `<i class=\"fas fa-exclamation-circle text-warning me-2\"></i> ${n.mensaje}`;
+            lista.appendChild(li);
+          });
+          badge.textContent = data.length;
+          badge.style.display = 'inline-block';
+        }
+      });
+  }
   document.addEventListener('DOMContentLoaded', function() {
+    cargarNotificaciones();
+    // Animaciones al cargar
     const animateElements = document.querySelectorAll('.table tr, .proyectos-card');
-    
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -525,7 +549,6 @@
         }
       });
     }, { threshold: 0.1 });
-    
     animateElements.forEach(el => {
       el.style.opacity = 0;
       el.style.transform = 'translateY(20px)';
