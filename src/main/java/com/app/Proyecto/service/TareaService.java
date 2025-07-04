@@ -9,12 +9,9 @@ import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import java.util.Map;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -27,29 +24,25 @@ public class TareaService {
     public List<Tarea> listarTareasPorUsuario(User usuario) {
         return tareaRepository.findByUsuario(usuario);
     }
-    // src/main/java/com/app/Proyecto/service/TareaService.java
 
-public long contarPorPrioridad(String prioridad) {
-    return tareaRepository.countByPrioridad(prioridad);
-}
-public long contarTareasPendientes() {
-    return tareaRepository.countByCompletada(false); // ✅
-}
+    // 📊 Estadísticas
+    public long contarPorPrioridad(String prioridad) {
+        return tareaRepository.countByPrioridad(prioridad);
+    }
 
-public Map<String, Long> obtenerEstadisticasProgreso() {
-    long completadas = tareaRepository.countByCompletadaTrue();
-    long pendientes = tareaRepository.countByCompletadaFalse();
+    public long contarTareasPendientes() {
+        return tareaRepository.countByCompletada(false);
+    }
 
-    Map<String, Long> estadisticas = new HashMap<>();
-    estadisticas.put("completadas", completadas);
-    estadisticas.put("pendientes", pendientes);
-    return estadisticas;
-}
+    public Map<String, Long> obtenerEstadisticasProgreso() {
+        long completadas = tareaRepository.countByCompletadaTrue();
+        long pendientes = tareaRepository.countByCompletadaFalse();
 
-
-
-    
-    
+        Map<String, Long> estadisticas = new HashMap<>();
+        estadisticas.put("completadas", completadas);
+        estadisticas.put("pendientes", pendientes);
+        return estadisticas;
+    }
 
     // 💾 Crear nueva tarea
     public Tarea crearTarea(Tarea tarea) {
@@ -95,18 +88,24 @@ public Map<String, Long> obtenerEstadisticasProgreso() {
         tareaRepository.save(tarea);
     }
 
+    // 🔗 Tareas por proyecto
     public List<Tarea> listarTareasPorProyecto(Proyecto proyecto) {
         return tareaRepository.findByProyecto(proyecto);
     }
 
-    // 🔍 Buscar con filtros dinámicos
+    // 🔍 Buscar tareas con filtros dinámicos
     public List<Tarea> buscarTareasConFiltros(User usuario, String titulo, Boolean completada, String prioridad,
                                               Long proyectoId, LocalDate fechaInicio, LocalDate fechaFin) {
+
+        boolean esAdmin = usuario.getRole().equalsIgnoreCase("ADMIN");
 
         Specification<Tarea> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            predicates.add(cb.equal(root.get("usuario"), usuario));
+            // Solo filtra por usuario si NO es admin
+            if (!esAdmin) {
+                predicates.add(cb.equal(root.get("usuario"), usuario));
+            }
 
             if (titulo != null && !titulo.isEmpty()) {
                 predicates.add(cb.like(cb.lower(root.get("titulo")), "%" + titulo.toLowerCase() + "%"));

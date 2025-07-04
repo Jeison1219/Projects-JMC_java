@@ -2,9 +2,11 @@ package com.app.Proyecto.controller;
 
 import com.app.Proyecto.model.Tarea;
 import com.app.Proyecto.model.User;
-import com.app.Proyecto.repository.UserRepository;
 import com.app.Proyecto.repository.ProyectoRepository;
+import com.app.Proyecto.repository.UserRepository;
+import com.app.Proyecto.service.TareaPDFService;
 import com.app.Proyecto.service.TareaService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,8 +20,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("/tareas")
+@RequiredArgsConstructor
 public class TareaController {
 
     private final TareaService tareaService;
@@ -27,9 +29,8 @@ public class TareaController {
     private final ProyectoRepository proyectoRepository;
 
     @Autowired
-    private com.app.Proyecto.service.TareaPDFService tareaPDFService;
+    private final TareaPDFService tareaPDFService;
 
-    // Método que se ejecuta antes de cada petición para agregar el username al modelo
     @ModelAttribute
     public void addUsernameToModel(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         if (userDetails != null) {
@@ -37,7 +38,7 @@ public class TareaController {
         }
     }
 
-    // 📋 Mostrar lista de tareas con filtros
+    // 📋 Lista filtrada de tareas por usuario autenticado
     @GetMapping
     public String listar(
             @RequestParam(required = false) String titulo,
@@ -64,19 +65,23 @@ public class TareaController {
         return "tareas";
     }
 
-    // 🆕 Formulario para nueva tarea
+    // 🆕 Formulario de creación de tarea
     @GetMapping("/nueva")
     public String nuevaTarea(Model model) {
         model.addAttribute("tarea", new Tarea());
         model.addAttribute("proyectos", proyectoRepository.findAll());
+        model.addAttribute("usuarios", userRepository.findAll()); // Para asignación por admin
         return "tarea-form";
     }
 
-    // 💾 Crear nueva tarea
+    // 💾 Crear tarea
     @PostMapping
     public String crear(@ModelAttribute Tarea tarea, @AuthenticationPrincipal UserDetails userDetails) {
-        User usuario = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
-        tarea.setUsuario(usuario);
+        // Solo se asigna usuario actual si no se seleccionó uno desde el formulario (usuario solo)
+        if (tarea.getUsuario() == null) {
+            User usuario = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+            tarea.setUsuario(usuario);
+        }
         tareaService.crearTarea(tarea);
         return "redirect:/tareas";
     }
@@ -87,6 +92,7 @@ public class TareaController {
         Tarea tarea = tareaService.buscarPorId(id);
         model.addAttribute("tarea", tarea);
         model.addAttribute("proyectos", proyectoRepository.findAll());
+        model.addAttribute("usuarios", userRepository.findAll()); // Para cambiar asignación si es admin
         return "tarea-form";
     }
 
@@ -96,58 +102,69 @@ public class TareaController {
         tareaService.actualizar(id, tareaActualizada);
         return "redirect:/tareas";
     }
-    
 
-    // ✅ Marcar tarea como completada
-    @PostMapping("/completar/{id}")
-    public String completar(@PathVariable Long id) {
-        tareaService.marcarComoCompletada(id);
-        return "redirect:/tareas";
+    // ✅ Cambiar estado completada (solo asignado)
+    @PostMapping("/actualizarEstado/{id}")
+    public String actualizarEstado(@PathVariable Long id,
+                                   @RequestParam(value = "completada", defaultValue = "false") boolean completada,
+                                   @AuthenticationPrincipal UserDetails userDetails) {
+        Tarea tarea = tareaService.buscarPorId(id);
+        if (tarea.getUsuario().getEmail().equals(userDetails.getUsername())) {
+            tarea.setCompletada(completada);
+            tareaService.crearTarea(tarea);
+        }
+        return "redirect:/tareas/detalles/" + id;
     }
 
-    // ❌ Eliminar tarea
+    // ❌ Eliminar
     @PostMapping("/eliminar/{id}")
     public String eliminar(@PathVariable Long id) {
         tareaService.eliminarTarea(id);
         return "redirect:/tareas";
     }
 
-    // 👁 Ver detalles de tarea
+    // 👁 Ver detalles
     @GetMapping("/detalles/{id}")
-    public String verDetalles(@PathVariable Long id, Model model) {
+    public String verDetalles(@PathVariable Long id, Model model,
+                              @AuthenticationPrincipal UserDetails userDetails) {
         Tarea tarea = tareaService.buscarPorId(id);
         model.addAttribute("tarea", tarea);
-        model.addAttribute("usuarios", userRepository.findAll());
+
+        // Solo mostrar lista de usuarios si es ADMIN
+        if (userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            model.addAttribute("usuarios", userRepository.findAll());
+        }
+
         return "tarea-detalles";
     }
 
-    // 👤 Asignar usuario a tarea
+    // 👤 Asignar usuario (solo admin)
     @PostMapping("/asignar/{id}")
     public String asignarUsuario(@PathVariable Long id, @RequestParam("usuarioId") Long usuarioId) {
         tareaService.asignarUsuario(id, usuarioId);
         return "redirect:/tareas/detalles/" + id;
     }
 
-    // 📂 Exportar tareas a PDF
+    // 📂 Exportar PDF
     @GetMapping("/exportar-pdf")
     public org.springframework.http.ResponseEntity<byte[]> exportarPDF(
             @RequestParam(required = false) String titulo,
             @RequestParam(required = false) Boolean completada,
             @RequestParam(required = false) String prioridad,
             @RequestParam(required = false) Long proyectoId,
-            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fechaInicio,
-            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fechaFin,
-            @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin,
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
-        com.app.Proyecto.model.User usuario = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+        User usuario = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
         List<Tarea> tareas = tareaService.buscarTareasConFiltros(usuario, titulo, completada, prioridad, proyectoId, fechaInicio, fechaFin);
-        String proyectoNombre = null;
-        if (proyectoId != null) {
-            proyectoNombre = proyectoRepository.findById(proyectoId).map(p -> p.getNombre()).orElse("");
-        }
+        String proyectoNombre = proyectoId != null
+                ? proyectoRepository.findById(proyectoId).map(p -> p.getNombre()).orElse("")
+                : "";
         String estado = completada == null ? "" : (completada ? "Completada" : "Pendiente");
         String fechaInicioStr = fechaInicio != null ? fechaInicio.toString() : "";
         String fechaFinStr = fechaFin != null ? fechaFin.toString() : "";
+
         try {
             byte[] pdfBytes = tareaPDFService.generateTareasPDF(tareas, proyectoNombre, prioridad, estado, fechaInicioStr, fechaFinStr);
             org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
