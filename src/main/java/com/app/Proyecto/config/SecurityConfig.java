@@ -24,17 +24,12 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // Acceso libre
-                .requestMatchers("/","/register", "/login", "/home", "/css/**", "/js/**", "/api/auth/**").permitAll()
+                .requestMatchers("/", "/register", "/login", "/home", "/css/**", "/js/**", "/api/auth/**").permitAll()
 
-                // Rutas solo para ADMIN
                 .requestMatchers("/tareas/nueva", "/tareas/editar/**", "/tareas/eliminar/**").hasRole("ADMIN")
                 .requestMatchers("/proyectos/nuevo", "/proyectos/editar/**", "/proyectos/eliminar/**").hasRole("ADMIN")
 
-                // Ver tareas y proyectos accesible por todos los autenticados
                 .requestMatchers("/tareas/**", "/proyectos/**").authenticated()
-
-                // Cualquier otra requiere autenticación
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -47,7 +42,10 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/home")
                 .permitAll()
             )
-            .userDetailsService(userDetailsService); // 💡 Usa tu servicio personalizado
+            .exceptionHandling(ex -> ex
+                .accessDeniedPage("/error/403") // ⬅️ Esta línea es la clave
+            )
+            .userDetailsService(userDetailsService);
 
         return http.build();
     }

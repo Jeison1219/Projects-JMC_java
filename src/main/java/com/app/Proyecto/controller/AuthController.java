@@ -32,6 +32,7 @@ public class AuthController {
         model.addAttribute("userDto", new UserRegistrationDto());
         return "register";
     }
+    
 
     @PostMapping("/register")
     public String registerWeb(
