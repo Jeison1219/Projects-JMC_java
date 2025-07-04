@@ -239,30 +239,15 @@
 </head>
 <body>
 
-<!-- NAVBAR (IGUAL AL DISEÑO ANTERIOR) -->
+<!-- NAVBAR -->
 <nav class="navbar">
   <div class="container-fluid">
     <a class="navbar-brand" href="/dashboard">
       <i class="fas fa-project-diagram"></i>
       Projects-JMC
     </a>
-    
-      
-        <div class="user-avatar" data-bs-toggle="dropdown">
-  <span th:text="${username.substring(0, 2).toUpperCase()}">US</span>
-</div>
-      <ul class="dropdown-menu dropdown-menu-end">
-        <li><a class="dropdown-item" href="/perfil"><i class="fas fa-user me-2"></i> Mi perfil</a></li>
-
-        <li><hr class="dropdown-divider"></li>
-        <li>
-          <form th:action="@{/logout}" method="post">
-            <button type="submit" class="dropdown-item">
-              <i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión
-            </button>
-          </form>
-        </li>
-      </ul>
+    <div class="user-avatar" data-bs-toggle="dropdown">
+      <span th:text="${username.substring(0, 2).toUpperCase()}">US</span>
     </div>
   </div>
 </nav>
@@ -284,50 +269,37 @@
           th:object="${proyecto}" method="post">
 
       <div class="mb-4">
-        <label for="nombre">
-          <i class="fas fa-tag me-1"></i> Nombre del Proyecto
-        </label>
-        <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required
-               placeholder="Ingrese el nombre del proyecto">
+        <label for="nombre"><i class="fas fa-tag me-1"></i> Nombre del Proyecto</label>
+        <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required placeholder="Nombre del proyecto">
       </div>
 
       <div class="mb-4">
-        <label for="descripcion">
-          <i class="fas fa-align-left me-1"></i> Descripción
-        </label>
-        <textarea class="form-control" id="descripcion" th:field="*{descripcion}" 
-                  placeholder="Describe el propósito o alcance del proyecto..."></textarea>
+        <label for="descripcion"><i class="fas fa-align-left me-1"></i> Descripción</label>
+        <textarea class="form-control" id="descripcion" th:field="*{descripcion}" placeholder="Descripción..."></textarea>
       </div>
 
       <div class="row mb-4">
         <div class="col-md-6 mb-3 mb-md-0">
-          <label for="fechaInicio">
-            <i class="fas fa-calendar-day me-1"></i> Fecha de Inicio
-          </label>
-        <input type="date" class="form-control" id="fechaInicio" th:field="*{fechaInicio}"
-       th:attr="min=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required>
-
+          <label for="fechaInicio"><i class="fas fa-calendar-day me-1"></i> Fecha de Inicio</label>
+          <input type="date" class="form-control" id="fechaInicio" name="fechaInicio"
+                 th:value="${proyecto.fechaInicio != null} ? ${#temporals.format(proyecto.fechaInicio, 'yyyy-MM-dd')} : ''"
+                 th:attr="min=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required>
         </div>
         <div class="col-md-6">
-          <label for="fechaFin">
-            <i class="fas fa-calendar-check me-1"></i> Fecha de Fin
-          </label>
-          <input type="date" class="form-control" id="fechaFin" th:field="*{fechaFin}" required>
+          <label for="fechaFin"><i class="fas fa-calendar-check me-1"></i> Fecha de Fin</label>
+          <input type="date" class="form-control" id="fechaFin" name="fechaFin"
+                 th:value="${proyecto.fechaFin != null} ? ${#temporals.format(proyecto.fechaFin, 'yyyy-MM-dd')} : ''"
+                 required>
         </div>
       </div>
 
       <div class="mb-4">
-        <label for="miembros">
-          <i class="fas fa-users me-1"></i> Miembros
-        </label>
-        <input type="text" class="form-control" id="miembros" th:field="*{miembros}" 
-               placeholder="Ej: 5, 10, etc.">
+        <label for="miembros"><i class="fas fa-users me-1"></i> Miembros</label>
+        <input type="text" class="form-control" id="miembros" th:field="*{miembros}" placeholder="IDs separados por comas o correos...">
       </div>
 
       <div class="d-flex justify-content-between">
-        <a th:href="@{/proyectos}" class="btn btn-secondary">
-          <i class="fas fa-times"></i> Cancelar
-        </a>
+        <a th:href="@{/proyectos}" class="btn btn-secondary"><i class="fas fa-times"></i> Cancelar</a>
         <button type="submit" class="btn btn-primary">
           <i class="fas fa-save"></i> 
           <span th:text="${proyecto.id == null} ? 'Guardar Proyecto' : 'Actualizar Proyecto'"></span>
@@ -339,7 +311,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-   document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", function () {
     const fechaInicio = document.getElementById("fechaInicio");
     const fechaFin = document.getElementById("fechaFin");
 
@@ -347,26 +319,9 @@
       fechaFin.min = fechaInicio.value;
     });
 
-    // Si ya hay una fechaInicio precargada (modo editar)
     if (fechaInicio.value) {
       fechaFin.min = fechaInicio.value;
     }
-  });
-  // Animaciones al cargar
-  document.addEventListener('DOMContentLoaded', function() {
-    const formElements = document.querySelectorAll('.form-control, .form-select, .btn');
-    
-    formElements.forEach((el, index) => {
-      el.style.opacity = 0;
-      el.style.transform = 'translateY(10px)';
-      el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-      el.style.transitionDelay = `${index * 0.05}s`;
-      
-      setTimeout(() => {
-        el.style.opacity = 1;
-        el.style.transform = 'translateY(0)';
-      }, 100);
-    });
   });
 </script>
 </body>
