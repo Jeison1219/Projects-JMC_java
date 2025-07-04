@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="'Detalles del Proyecto - ' + ${proyecto.nombre}">Detalles del Proyecto</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #29648e;
+      --primary-light: #3a7ca5;
+      --primary-dark: #1a4a6b;
+      --bg: #f4f6f8;
+      --card-bg: #ffffff;
+      --text: #1a1a1a;
+      --text-light: #6e6e73;
+      --border: #e0e0e0;
+      --success: #4CAF50;
+      --warning: #FFC107;
+      --danger: #FF3D00;
+    }
+
+    body {
+      background-color: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 
+                   'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.6;
+    }
+
+    /* Navbar (igual al dashboard) */
+    .navbar {
+      background-color: var(--card-bg);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      animation: fadeInDown 0.5s ease-out;
+    }
+    
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    .navbar-brand i {
+      margin-right: 10px;
+      font-size: 1.5rem;
+    }
+    
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    
+    .user-avatar:hover {
+      transform: scale(1.05);
+    }
+
+    /* Main Container */
+    .container-box {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 2rem auto;
+      max-width: 1000px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+      border: 1px solid var(--border);
+      animation: fadeInUp 0.5s ease-out;
+    }
+
+    /* Section Title */
+    .section-title {
+      color: var(--primary-dark);
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .section-title i {
+      margin-right: 12px;
+      color: var(--primary);
+    }
+
+    /* Details List */
+    .row-detail {
+      margin-bottom: 1rem;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    dt {
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    dd {
+      margin-bottom: 1rem;
+    }
+
+    /* Table */
+    .table {
+      color: var(--text);
+      margin-top: 1.5rem;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    .table th {
+      font-weight: 600;
+      color: var(--primary);
+      border-bottom: 2px solid var(--primary-light);
+      padding: 1rem;
+    }
+
+    .table td {
+      padding: 0.75rem 1rem;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .table-hover tbody tr:hover {
+      background-color: rgba(41,100,142,0.05);
+    }
+
+    /* Badges */
+    .badge-prioridad {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+    }
+
+    .prioridad-Alta { background-color: var(--danger); color: white; }
+    .prioridad-Media { background-color: var(--warning); color: #000; }
+    .prioridad-Baja { background-color: var(--success); color: white; }
+
+    .badge-estado {
+      padding: 0.4rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+    }
+
+    /* Buttons */
+    .btn {
+      border-radius: 8px;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .btn-info {
+      background-color: var(--primary-light);
+      border-color: var(--primary-light);
+    }
+
+    .btn-info:hover {
+      background-color: var(--primary-dark);
+      border-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    /* Divider */
+    .divider {
+      border-top: 1px solid var(--border);
+      margin: 1.5rem 0;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container-box {
+        margin: 1.5rem;
+        padding: 1.5rem;
+      }
+      
+      .section-title {
+        font-size: 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR (IGUAL AL DASHBOARD) -->
+<nav class="navbar">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/dashboard">
+      <i class="fas fa-project-diagram"></i>
+      Projects-JMC
+    </a>
+    
+   
+      
+     <div class="user-avatar" data-bs-toggle="dropdown">
+  <span th:text="${username.substring(0, 2).toUpperCase()}">US</span>
+</div>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="/perfil"><i class="fas fa-user me-2"></i> Mi perfil</a></li>
+       
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <form th:action="@{/logout}" method="post">
+            <button type="submit" class="dropdown-item">
+              <i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- DETALLES DEL PROYECTO -->
+<div class="container-box">
+  <!-- Botón de Volver en la parte superior -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <a th:href="@{/proyectos}" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left me-2"></i> Volver a Proyectos
+    </a>
+    <h3 class="section-title mb-0">
+      <i class="fas fa-folder-open"></i> 
+      Detalles del Proyecto
+    </h3>
+  </div>
+  
+  <div class="row row-detail">
+    <div class="col-md-3">
+      <dt>Nombre:</dt>
+      <dd th:text="${proyecto.nombre}">Nombre del proyecto</dd>
+    </div>
+  </div>
+  
+  <div class="row row-detail">
+    <div class="col-md-12">
+      <dt>Descripción:</dt>
+      <dd th:text="${proyecto.descripcion}">Texto de descripción</dd>
+    </div>
+  </div>
+  
+  <div class="row row-detail">
+    <div class="col-md-3">
+      <dt>Fecha de Inicio:</dt>
+      <dd th:text="${#temporals.format(proyecto.fechaInicio, 'yyyy-MM-dd')}">Inicio</dd>
+    </div>
+    <div class="col-md-3">
+      <dt>Fecha de Fin:</dt>
+      <dd th:text="${#temporals.format(proyecto.fechaFin, 'yyyy-MM-dd')}">Fin</dd>
+    </div>
+  </div>
+  
+  <div class="row row-detail">
+    <div class="col-md-12">
+      <dt>Miembros:</dt>
+      <dd th:text="${proyecto.miembros}">Miembros</dd>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h4 class="section-title">
+    <i class="fas fa-tasks"></i> 
+    Tareas Asociadas
+  </h4>
+
+  <div th:if="${#lists.isEmpty(tareas)}" class="text-muted">
+    <i class="fas fa-info-circle"></i> No hay tareas asociadas a este proyecto.
+  </div>
+
+  <div th:if="${not #lists.isEmpty(tareas)}" class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Fecha Límite</th>
+          <th>Prioridad</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="t : ${tareas}" class="animate-row">
+          <td th:text="${t.titulo}">Título</td>
+          <td th:text="${#temporals.format(t.fechaLimite, 'yyyy-MM-dd')}">Fecha</td>
+          <td>
+            <span class="badge-prioridad" 
+                  th:text="${t.prioridad}" 
+                  th:classappend="'prioridad-' + ${t.prioridad}"></span>
+          </td>
+          <td>
+            <span class="badge-estado"
+                  th:text="${t.completada} ? 'Completada' : 'Pendiente'"
+                  th:classappend="${t.completada} ? 'bg-success' : 'bg-warning text-dark'"></span>
+          </td>
+          <td>
+            <a th:href="@{'/tareas/detalles/' + ${t.id}}" class="btn btn-info btn-sm">
+              <i class="fas fa-eye"></i> Ver
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+ 
+  
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Animaciones para las filas de la tabla
+  document.addEventListener('DOMContentLoaded', function() {
+    const rows = document.querySelectorAll('.animate-row');
+    
+    rows.forEach((row, index) => {
+      row.style.opacity = 0;
+      row.style.transform = 'translateY(10px)';
+      row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      row.style.transitionDelay = `${index * 0.05}s`;
+      
+      setTimeout(() => {
+        row.style.opacity = 1;
+        row.style.transform = 'translateY(0)';
+      }, 100);
+    });
+  });
+</script>
+</body>
+</html>

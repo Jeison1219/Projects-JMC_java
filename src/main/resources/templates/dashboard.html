@@ -1,15 +1,575 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Dashboard</title>
+    <title>Dashboard | Projects-JMC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #29648e;
+            --primary-light: #3a7ca5;
+            --primary-dark: #1a4a6b;
+            --bg: #f4f6f8;
+            --card-bg: #ffffff;
+            --text: #1a1a1a;
+            --text-light: #6e6e73;
+            --border: #e0e0e0;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --danger: #FF3D00;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 
+                         'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background-color: var(--card-bg);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .navbar-brand i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Main Container */
+        .main-container {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: calc(100vh - 70px);
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            padding: 2rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .menu-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 0.7rem 1rem;
+            border-radius: 8px;
+            color: var(--text-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-link:hover, .menu-link.active {
+            background: rgba(41,100,142,0.1);
+            color: var(--primary);
+        }
+        
+        .menu-link i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        /* Content Area */
+        .content {
+            padding: 2rem;
+        }
+        
+        /* Welcome Card */
+        .welcome-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .welcome-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        .welcome-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+        }
+        
+        .welcome-text {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            max-width: 600px;
+        }
+        
+        /* Tip Card */
+        .tip-card {
+            background: #fef9e7;
+            border-left: 5px solid #f1c40f;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            animation: fadeInUp 0.8s ease-out;
+            animation-delay: 0.2s;
+            animation-fill-mode: both;
+        }
+        
+        .tip-title {
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+        }
+        
+        .tip-title i {
+            margin-right: 10px;
+            color: #f1c40f;
+        }
+        
+        .tip-text {
+            margin: 0;
+            font-style: italic;
+            color: var(--text);
+        }
+        
+        /* Charts Container */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            border: 1px solid var(--border);
+            animation: fadeInUp 0.8s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        .chart-card:nth-child(1) { animation-delay: 0.3s; }
+        .chart-card:nth-child(2) { animation-delay: 0.5s; }
+        
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+        }
+        
+        .chart-title i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+        
+        /* Pending Tasks Card */
+        .pending-tasks-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            border: 1px solid var(--border);
+            animation: fadeInUp 0.8s ease-out;
+            animation-delay: 0.7s;
+            animation-fill-mode: both;
+        }
+        
+        .pending-tasks-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        
+        .pending-tasks-count {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .pending-tasks-label {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 240px;
+                height: calc(100vh - 70px);
+                z-index: 900;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>Bienvenido, <span th:text="${username}">Usuario</span>!</h2>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-project-diagram"></i>
+                Projects-JMC
+            </a>
+            
+            <div class="user-menu">
+                <div class="user-avatar" data-bs-toggle="dropdown">
+                    <span th:text="${username.substring(0, 2).toUpperCase()}">US</span>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="/perfil"><i class="fas fa-user me-2"></i> Mi perfil</a></li>
+                   
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <ul class="sidebar-menu">
+                <li class="menu-item">
+                    <a href="/dashboard" class="menu-link active">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/proyectos" class="menu-link">
+                        <i class="fas fa-project-diagram"></i>
+                        <span>Proyectos</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="/tareas" class="menu-link">
+                        <i class="fas fa-tasks"></i>
+                        <span>Tareas</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
 
-    <p>Has iniciado sesión correctamente.</p>
+        <!-- Content -->
+        <main class="content">
+            <!-- Welcome Card -->
+            <div class="welcome-card">
+                <h1 class="welcome-title">¡Bienvenid@, <span th:text="${username}">Usuario</span>!</h1>
+                <p class="welcome-text">
+                    Has iniciado sesión correctamente en Projects-JMC. Aquí puedes gestionar todos tus proyectos, tareas y equipo de trabajo de manera eficiente.
+                </p>
+                <a href="/proyectos" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i> Nuevo Proyecto
+                </a>
+            </div>
+            
+            <!-- Tip del Día -->
+            <div class="tip-card">
+                <h3 class="tip-title"><i class="fas fa-lightbulb"></i> Tip del Día</h3>
+                <p class="tip-text" id="dailyTip">Cargando consejo...</p>
+            </div>
+            
+            <!-- Charts Section -->
+            <div class="charts-container">
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Tareas por Prioridad</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="chartPrioridad"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Progreso de Tareas</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="chartProgreso"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pending Tasks Card -->
+            <div class="pending-tasks-card">
+                <div class="pending-tasks-content">
+                    <div class="pending-tasks-count" id="tareasPendientes">...</div>
+                    <p class="pending-tasks-label">Tareas pendientes en tus proyectos</p>
+                    <a href="/tareas" class="btn btn-outline-primary">
+                        <i class="fas fa-tasks me-2"></i> Ver todas las tareas
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
 
-    <form th:action="@{/logout}" method="post">
-        <button type="submit">Cerrar sesión</button>
-    </form>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Tip del Día
+            const tips = [
+                "Divide tareas grandes en subtareas pequeñas y medibles.",
+                "Prioriza lo importante antes que lo urgente.",
+                "Planifica tu día en los primeros 5 minutos de trabajo.",
+                "Evita el multitasking: enfócate en una sola tarea.",
+                "Agrupa tareas similares para mantener el enfoque.",
+                "Termina tu día dejando clara la primera tarea de mañana.",
+                "Elimina tareas que no agregan valor real a tu proyecto."
+            ];
+            const randomTip = tips[Math.floor(Math.random() * tips.length)];
+            document.getElementById("dailyTip").textContent = randomTip;
+
+           fetch('/api/tareas/prioridad')
+    .then(response => response.json())
+    .then(data => {
+        const ctx = document.getElementById('chartPrioridad').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Alta', 'Media', 'Baja'],
+                datasets: [{
+                    label: 'Cantidad de tareas',
+                    data: [data.alta, data.media, data.baja],
+                    backgroundColor: [
+                        'rgba(255, 87, 34, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(144, 238, 144, 0.8)' // Naranja coral
+                    ],
+                    borderColor: [
+                        'rgba(255, 87, 34, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(144, 238, 144, 0.8)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw} tareas`;
+                            }
+                        }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+    });
+            // Gráfico de Progreso (Completadas vs Pendientes)
+            fetch('/api/tareas/progreso')
+                .then(response => response.json())
+                .then(data => {
+                    const ctx = document.getElementById('chartProgreso').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Completadas', 'Pendientes'],
+                            datasets: [{
+                                label: 'Tareas',
+                                data: [data.completadas, data.pendientes],
+                                backgroundColor: [
+                                    'rgba(0, 100, 0, 0.8)',
+                                   'rgba(255, 193, 7, 0.8)',
+                                ],
+                                borderColor: [
+                                    'rgba(46, 204, 113, 1)',
+                                    'rgba(255, 193, 7, 0.8)',
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 20,
+                                        font: {
+                                            size: 14
+                                        }
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `${context.label}: ${context.raw} tareas`;
+                                        }
+                                    }
+                                }
+                            },
+                            cutout: '65%'
+                        }
+                    });
+                });
+
+            // Tareas Pendientes
+            fetch('/api/tareas/pendientes')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('tareasPendientes').textContent = data;
+                });
+function getCssVariable(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+            // Intersection Observer para animaciones
+            const animateElements = document.querySelectorAll('.welcome-card, .tip-card, .chart-card, .pending-tasks-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            animateElements.forEach(el => {
+                el.style.opacity = 0;
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+                observer.observe(el);
+            });
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Detalles de Tarea</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #29648e;
+      --primary-light: #3a7ca5;
+      --primary-dark: #1a4a6b;
+      --bg: #f4f6f8;
+      --card-bg: #ffffff;
+      --text: #1a1a1a;
+      --text-light: #6e6e73;
+      --border: #e0e0e0;
+      --success: #4CAF50;
+      --warning: #FFC107;
+      --danger: #FF3D00;
+    }
+
+    body {
+      background-color: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.6;
+    }
+
+    /* Navbar (igual al diseño anterior) */
+    .navbar {
+      background-color: var(--card-bg);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      animation: fadeInDown 0.5s ease-out;
+    }
+    
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    .navbar-brand i {
+      margin-right: 10px;
+      font-size: 1.5rem;
+    }
+    
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    
+    .user-avatar:hover {
+      transform: scale(1.05);
+    }
+
+    /* Card Container */
+    .detail-container {
+      max-width: 850px;
+      margin: 2rem auto;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      animation: fadeInUp 0.5s ease-out;
+    }
+
+    /* Card Header */
+    .detail-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .detail-header h3 {
+      margin: 0;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+    }
+
+    .detail-header i {
+      margin-right: 10px;
+    }
+
+    /* Card Body */
+    .detail-body {
+      padding: 2rem;
+    }
+
+    .detail-item {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .detail-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .detail-icon {
+      font-size: 1.2rem;
+      color: var(--primary);
+      margin-right: 1rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    .detail-content {
+      flex: 1;
+    }
+
+    .detail-label {
+      font-weight: 500;
+      color: var(--primary-dark);
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+
+    .detail-value {
+      color: var(--text);
+      font-size: 1.05rem;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      border-radius: 50px;
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+
+    .status-pending {
+      background-color: rgba(255, 193, 7, 0.15);
+      color: #ff9800;
+    }
+
+    .status-completed {
+      background-color: rgba(76, 175, 80, 0.15);
+      color: #4caf50;
+    }
+
+    /* Buttons */
+    .btn {
+      border-radius: 8px;
+      font-weight: 500;
+      padding: 0.6rem 1.25rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      border-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: var(--text-light);
+      border-color: var(--text-light);
+    }
+
+    .btn-secondary:hover {
+      background-color: #5d5d62;
+      border-color: #5d5d62;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .detail-container {
+        margin: 1.5rem;
+      }
+      
+      .detail-body {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR (IGUAL AL DISEÑO ANTERIOR) -->
+<nav class="navbar">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/dashboard">
+      <i class="fas fa-project-diagram"></i>
+      Projects-JMC
+    </a>
+    
+    
+    <div class="user-avatar" data-bs-toggle="dropdown">
+  <span th:text="${username.substring(0, 2).toUpperCase()}">US</span>
+</div>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="/perfil"><i class="fas fa-user me-2"></i> Mi perfil</a></li>
+  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <form th:action="@{/logout}" method="post">
+            <button type="submit" class="dropdown-item">
+              <i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- DETALLES DE TAREA -->
+<div class="detail-container">
+  <div class="detail-header">
+    <a th:href="@{/tareas}" class="btn btn-outline-light">
+      <i class="fas fa-arrow-left"></i> Volver
+    </a>
+    <h3>
+      <i class="fas fa-info-circle"></i> 
+      Detalles de Tarea
+    </h3>
+  </div>
+
+  <div class="detail-body">
+    <div class="detail-item">
+      <div class="detail-icon"><i class="fas fa-heading"></i></div>
+      <div class="detail-content">
+        <span class="detail-label">Título</span>
+        <p class="detail-value" th:text="${tarea.titulo}">Título</p>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <div class="detail-icon"><i class="fas fa-align-left"></i></div>
+      <div class="detail-content">
+        <span class="detail-label">Descripción</span>
+        <p class="detail-value" th:text="${tarea.descripcion}">Descripción</p>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <div class="detail-icon"><i class="fas fa-calendar-day"></i></div>
+      <div class="detail-content">
+        <span class="detail-label">Fecha Límite</span>
+        <p class="detail-value" th:text="${#temporals.format(tarea.fechaLimite, 'yyyy-MM-dd')}">Fecha</p>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <div class="detail-icon"><i class="fas fa-exclamation-circle"></i></div>
+      <div class="detail-content">
+        <span class="detail-label">Prioridad</span>
+        <p class="detail-value" th:text="${tarea.prioridad}">Prioridad</p>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <div class="detail-icon"><i class="fas fa-user"></i></div>
+      <div class="detail-content">
+        <span class="detail-label">Asignado a</span>
+        <p class="detail-value" th:text="${tarea.usuario?.name ?: 'No asignado'}">Usuario</p>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <div class="detail-icon"><i class="fas fa-project-diagram"></i></div>
+      <div class="detail-content">
+        <span class="detail-label">Proyecto</span>
+        <p class="detail-value" th:text="${tarea.proyecto?.nombre ?: 'Sin proyecto'}">Proyecto</p>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <div class="detail-icon"><i class="fas fa-check-circle"></i></div>
+      <div class="detail-content">
+        <span class="detail-label">Estado</span>
+        <p class="detail-value">
+          <span th:if="${tarea.completada}" class="status-badge status-completed">
+            <i class="fas fa-check"></i> Completada
+          </span>
+          <span th:unless="${tarea.completada}" class="status-badge status-pending">
+            <i class="fas fa-clock"></i> Pendiente
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end mt-4">
+      <a th:href="@{/tareas}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver a la lista
+      </a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Animaciones al cargar
+  document.addEventListener('DOMContentLoaded', function() {
+    const detailItems = document.querySelectorAll('.detail-item');
+    
+    detailItems.forEach((el, index) => {
+      el.style.opacity = 0;
+      el.style.transform = 'translateY(10px)';
+      el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      el.style.transitionDelay = `${index * 0.05}s`;
+      
+      setTimeout(() => {
+        el.style.opacity = 1;
+        el.style.transform = 'translateY(0)';
+      }, 100);
+    });
+  });
+</script>
+</body>
+</html>

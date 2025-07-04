@@ -1,22 +1,986 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Registro</title>
+    <meta charset="UTF-8">
+    <title>Registro | Projects-JMC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #29648e;
+            --primary-light: #3a7ca5;
+            --bg: #f4f6f8;
+            --card-bg: #ffffff;
+            --text: #1a1a1a;
+            --text-light: #6e6e73;
+            --border: #e0e0e0;
+            --error-bg: #fff8f8;
+            --error-text: #d12626;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --danger: #FF3D00;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 
+                         'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            width: 100%;
+            min-height: 100vh;
+        }
+        
+        /* Sección izquierda - Visual */
+        .visual-section {
+            background: linear-gradient(145deg, var(--primary), #1a4a6b);
+            color: white;
+            padding: 5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeInLeft 1s ease-out forwards;
+            animation-delay: 0.3s;
+        }
+        
+        .visual-section::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            transform: rotate(30deg);
+            animation: float 15s infinite alternate ease-in-out;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            z-index: 2;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+            animation-delay: 0.8s;
+        }
+        
+        .logo-icon {
+            font-size: 1.8rem;
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .hero-content {
+            max-width: 480px;
+            margin: auto 0;
+            z-index: 2;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+            animation-delay: 1s;
+        }
+        
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 2rem;
+            letter-spacing: -0.5px;
+        }
+        
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.1rem;
+            transform: translateX(-20px);
+            opacity: 0;
+        }
+        
+        .feature:nth-child(1) {
+            animation: fadeInRight 0.8s ease-out forwards;
+            animation-delay: 1.0s;
+        }
+        
+        .feature:nth-child(2) {
+            animation: fadeInRight 0.8s ease-out forwards;
+            animation-delay: 1.0s;
+        }
+        
+        .feature:nth-child(3) {
+            animation: fadeInRight 0.8s ease-out forwards;
+            animation-delay: 1.0s;
+        }
+        
+        .feature-icon {
+            background: rgba(255,255,255,0.15);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature:hover .feature-icon {
+            transform: scale(1.1) rotate(10deg);
+        }
+        
+        .copyright {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            z-index: 2;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+            animation-delay: 1.0s;
+        }
+        
+        /* Sección derecha - Formulario */
+        .form-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .form-container {
+            width: 100%;
+            max-width: 420px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease-out forwards;
+            animation-delay: 1.0s;
+        }
+        
+        .form-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+        }
+        
+        .form-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        }
+        
+        .form-header {
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+        
+        .form-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+            color: var(--primary);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .form-title::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px;
+            animation: lineExpand 0.8s ease-out forwards;
+            animation-delay: 1s;
+        }
+        
+        .form-subtitle {
+            color: var(--text-light);
+            font-size: 1rem;
+            opacity: 0;
+            animation: fadeIn 0.8s ease-out forwards;
+            animation-delay: 1.0s;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        
+        .form-group:nth-child(1) {
+            animation: fadeInUp 0.6s ease-out forwards;
+            animation-delay: 1.0s;
+        }
+        
+        .form-group:nth-child(2) {
+            animation: fadeInUp 0.6s ease-out forwards;
+            animation-delay: 1.0s;
+        }
+        
+        .form-group:nth-child(3) {
+            animation: fadeInUp 0.6s ease-out forwards;
+            animation-delay: 1.0s;
+        }
+        
+        .form-group:nth-child(4) {
+            animation: fadeInUp 0.6s ease-out forwards;
+            animation-delay: 1.0s;
+        }
+        
+        .form-group:nth-child(5) {
+            animation: fadeInUp 0.6s ease-out forwards;
+            animation-delay: 1s;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(41,100,142,0.1);
+            outline: none;
+            transform: translateY(-2px);
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 0.8s ease-out forwards;
+            animation-delay: 1.0s;
+        }
+        
+        .submit-btn::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 40px;
+            height: 200%;
+            background: rgba(255,255,255,0.2);
+            transform: rotate(30deg);
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(41,100,142,0.3);
+        }
+        
+        .submit-btn:hover::after {
+            left: 120%;
+        }
+        
+        .form-footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.95rem;
+            color: var(--text-light);
+            opacity: 0;
+            animation: fadeIn 0.8s ease-out forwards;
+            animation-delay: 1.0s;
+        }
+        
+        .form-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .form-footer a::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .form-footer a:hover::after {
+            width: 100%;
+        }
+        
+        .error-message {
+            background: var(--error-bg);
+            color: var(--error-text);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            border: 1px solid #ffd6d6;
+            font-size: 0.95rem;
+            animation: shake 0.5s ease;
+        }
+        
+    
+      
+        /* Password strength */
+        .password-strength {
+            margin-top: 8px;
+            height: 4px;
+            background-color: #e9ecef;
+            border-radius: 2px;
+            overflow: hidden;
+            display: flex;
+            gap: 2px;
+        }
+        
+        .strength-bar {
+            height: 100%;
+            flex-grow: 1;
+            background-color: #e9ecef;
+            transition: background-color 0.3s;
+        }
+        
+        .strength-text {
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+        
+        /* Error styles */
+        .error-field {
+            border-color: var(--danger) !important;
+            background-color: var(--error-bg);
+        }
+        
+        .error-message-field {
+            color: var(--danger);
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+            display: none;
+        }
+        
+        /* Animaciones personalizadas */
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes float {
+            0% {
+                transform: rotate(30deg) translateY(0);
+            }
+            100% {
+                transform: rotate(30deg) translateY(-20px);
+            }
+        }
+        
+        @keyframes lineExpand {
+            0% {
+                width: 0;
+            }
+            100% {
+                width: 50px;
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            10%, 30%, 50%, 70%, 90% {
+                transform: translateX(-5px);
+            }
+            20%, 40%, 60%, 80% {
+                transform: translateX(5px);
+            }
+        }
+        
+        /* Loader */
+        .loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .loader.active {
+            display: flex;
+        }
+        
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(41,100,142,0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        
+        .loader-text {
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .visual-section {
+                padding: 3rem 2rem;
+                text-align: center;
+                animation-delay: 0.1s !important;
+            }
+            
+            .hero-content {
+                margin: 2rem auto;
+            }
+            
+            .features {
+                align-items: center;
+            }
+            
+            .feature {
+                transform: translateX(0) translateY(20px) !important;
+                animation: fadeInUp 0.8s ease-out forwards !important;
+            }
+            
+            .copyright {
+                margin-top: 2rem;
+            }
+            
+            .form-container {
+                animation-delay: 1.8s !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .form-card {
+                padding: 2rem;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .avatar-selector {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>Registro de Usuario</h2>
-    <form th:action="@{/register}" method="post" th:object="${user}">
-        <label>Usuario:</label>
-        <input type="text" th:field="*{username}" required />
-        <br/>
-        <label>Contraseña:</label>
-        <input type="password" th:field="*{password}" required />
-        <br/>
-        <button type="submit">Registrar</button>
-    </form>
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Creando tu cuenta...</div>
+    </div>
+    
+    <div class="main-container">
+        <!-- Sección visual -->
+        <section class="visual-section">
+            <div class="logo">
+    <a href="/home" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+        <i class="fas fa-project-diagram logo-icon"></i>
+        <span style="margin-left: 8px;">Projects-JMC</span>
+    </a>
+</div>
 
-    <p>¿Ya tienes cuenta? <a th:href="@{/login}">Inicia sesión</a></p>
+            
+            <div class="hero-content">
+                <h1 class="hero-title">Únete a nuestra plataforma</h1>
+                
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <span>Gestión avanzada de proyectos</span>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <span>Colaboración en equipo</span>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <span>Seguimiento de progreso</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                &copy; 2025 Projects-JMC. Todos los derechos reservados.
+            </div>
+        </section>
+        
+        <!-- Sección del formulario -->
+        <section class="form-section">
+            <div class="form-container">
+                <div class="form-card">
+                    <div class="form-header">
+                        <h2 class="form-title">Crear Cuenta</h2>
+                        <p class="form-subtitle">Completa tus datos para registrarte</p>
+                    </div>
+                    
+                
+                       
 
-    <p th:if="${success}" th:text="${success}" style="color: green;"></p>
+                    <form th:action="@{/register}" method="post" th:object="${userDto}" id="registerForm">
+                        <!-- Mensajes de error globales -->
+                        <div th:if="${#fields.hasErrors('global')}" class="error-message">
+                            <div th:each="err : ${#fields.errors('global')}" th:text="${err}"></div>
+                        </div>
+                        
+                        <!-- Nombre completo -->
+                        <div class="form-group">
+                            <label for="name" class="form-label">Nombre completo</label>
+                            <input type="text" th:field="*{name}" id="name" class="form-input" 
+                                   placeholder="Ej: Juan Pérez" required
+                                   minlength="3" maxlength="50">
+                            <div class="text-danger mt-1" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                            <div class="error-message-field" id="name-error"></div>
+                        </div>
+
+                        <!-- Correo electrónico -->
+                        <div class="form-group">
+                            <label for="email" class="form-label">Correo Electrónico</label>
+                            <input type="email" th:field="*{email}" id="email" class="form-input" 
+                                   placeholder="correo@ejemplo.com" required
+                                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+                            <div class="text-danger mt-1" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                            <div class="error-message-field" id="email-error"></div>
+                        </div>
+
+                        <!-- Contraseña -->
+                        <div class="form-group">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" th:field="*{password}" id="password" class="form-input" 
+                                   placeholder="Mínimo 8 caracteres" required
+                                   minlength="8" maxlength="30">
+                            <div class="password-strength mt-2">
+                                <div class="strength-bar" id="strengthBar1"></div>
+                                <div class="strength-bar" id="strengthBar2"></div>
+                                <div class="strength-bar" id="strengthBar3"></div>
+                                <div class="strength-bar" id="strengthBar4"></div>
+                            </div>
+                            <small class="strength-text" id="strengthText">Seguridad: <span style="color: var(--danger)">Débil</span></small>
+                            <div class="text-danger mt-1" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                            <div class="error-message-field" id="password-error"></div>
+                        </div>
+
+                        <!-- Confirmar Contraseña -->
+                        <div class="form-group">
+                            <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+                            <input type="password" th:field="*{confirmPassword}" id="confirmPassword" class="form-input" 
+                                   placeholder="Repite tu contraseña" required
+                                   minlength="8" maxlength="30">
+                            <div class="text-danger mt-1" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
+                            <div class="error-message-field" id="confirmPassword-error"></div>
+                        </div>
+
+                        <!-- Rol -->
+                        <div class="form-group">
+                            <label for="role" class="form-label">Seleccionar Rol</label>
+                            <select th:field="*{role}" id="role" class="form-input" required>
+                                <option value="" disabled selected>Selecciona un rol</option>
+                                <option value="USER">Usuario</option>
+                                <option value="ADMIN">Administrador</option>
+                            </select>
+                            <div class="text-danger mt-1" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
+                            <div class="error-message-field" id="role-error"></div>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="submitBtn">
+                            <span id="btnText">Registrarse</span>
+                        </button>
+                    </form>
+
+                    <div class="form-footer">
+                        ¿Ya tienes cuenta? <a th:href="@{/login}">Inicia sesión</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+
+        // Variables de estado para validación
+        let isNameValid = false;
+        let isEmailValid = false;
+        let isPasswordValid = false;
+        let isConfirmPasswordValid = false;
+        let isRoleValid = false;
+        
+        // Elementos del formulario
+        const form = document.getElementById('registerForm');
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const roleInput = document.getElementById('role');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Elementos de mensajes de error
+        const nameError = document.getElementById('name-error');
+        const emailError = document.getElementById('email-error');
+        const passwordError = document.getElementById('password-error');
+        const confirmPasswordError = document.getElementById('confirmPassword-error');
+        const roleError = document.getElementById('role-error');
+        
+        // Validación en tiempo real
+        nameInput.addEventListener('input', validateName);
+        emailInput.addEventListener('input', validateEmail);
+        passwordInput.addEventListener('input', validatePassword);
+        confirmPasswordInput.addEventListener('input', validateConfirmPassword);
+        roleInput.addEventListener('change', validateRole);
+        
+        // Validación al enviar el formulario
+        form.addEventListener('submit', function(event) {
+            // Validar todos los campos antes de enviar
+            validateName();
+            validateEmail();
+            validatePassword();
+            validateConfirmPassword();
+            validateRole();
+            
+            // Si algún campo no es válido, prevenir el envío
+            if (!isNameValid || !isEmailValid || !isPasswordValid || !isConfirmPasswordValid || !isRoleValid) {
+                event.preventDefault();
+                // Mostrar mensaje global de error
+                showGlobalError("Por favor, corrige los errores en el formulario antes de continuar.");
+            } else {
+                // Mostrar loader si todo está bien
+                document.getElementById('loader').classList.add('active');
+            }
+        });
+        
+        // Funciones de validación
+        function validateName() {
+            const value = nameInput.value.trim();
+            
+            if (value === '') {
+                showError(nameInput, nameError, "El nombre es requerido");
+                isNameValid = false;
+            } else if (value.length < 3) {
+                showError(nameInput, nameError, "Mínimo 3 caracteres");
+                isNameValid = false;
+            } else if (value.length > 50) {
+                showError(nameInput, nameError, "Máximo 50 caracteres");
+                isNameValid = false;
+            } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+                showError(nameInput, nameError, "Solo letras y espacios");
+                isNameValid = false;
+            } else {
+                clearError(nameInput, nameError);
+                isNameValid = true;
+            }
+            
+            updateSubmitButton();
+        }
+        
+        function validateEmail() {
+            const value = emailInput.value.trim();
+            const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
+            
+            if (value === '') {
+                showError(emailInput, emailError, "El correo es requerido");
+                isEmailValid = false;
+            } else if (!emailRegex.test(value)) {
+                showError(emailInput, emailError, "Correo electrónico inválido");
+                isEmailValid = false;
+            } else {
+                clearError(emailInput, emailError);
+                isEmailValid = true;
+            }
+            
+            updateSubmitButton();
+        }
+        
+        function validatePassword() {
+            const value = passwordInput.value;
+            updatePasswordStrength(value);
+            
+            if (value === '') {
+                showError(passwordInput, passwordError, "La contraseña es requerida");
+                isPasswordValid = false;
+            } else if (value.length < 8) {
+                showError(passwordInput, passwordError, "Mínimo 8 caracteres");
+                isPasswordValid = false;
+            } else if (value.length > 30) {
+                showError(passwordInput, passwordError, "Máximo 30 caracteres");
+                isPasswordValid = false;
+            } else {
+                clearError(passwordInput, passwordError);
+                isPasswordValid = true;
+                
+                // Si hay confirmación de contraseña, validarla también
+                if (confirmPasswordInput.value) {
+                    validateConfirmPassword();
+                }
+            }
+            
+            updateSubmitButton();
+        }
+        
+        function validateConfirmPassword() {
+            const value = confirmPasswordInput.value;
+            const passwordValue = passwordInput.value;
+            
+            if (value === '') {
+                showError(confirmPasswordInput, confirmPasswordError, "Confirma tu contraseña");
+                isConfirmPasswordValid = false;
+            } else if (value !== passwordValue) {
+                showError(confirmPasswordInput, confirmPasswordError, "Las contraseñas no coinciden");
+                isConfirmPasswordValid = false;
+            } else {
+                clearError(confirmPasswordInput, confirmPasswordError);
+                isConfirmPasswordValid = true;
+            }
+            
+            updateSubmitButton();
+        }
+        
+        function validateRole() {
+            const value = roleInput.value;
+            
+            if (value === '' || value === null) {
+                showError(roleInput, roleError, "Selecciona un rol");
+                isRoleValid = false;
+            } else {
+                clearError(roleInput, roleError);
+                isRoleValid = true;
+            }
+            
+            updateSubmitButton();
+        }
+        
+        // Mostrar fortaleza de contraseña
+        function updatePasswordStrength(password) {
+            const strengthBars = [
+                document.getElementById('strengthBar1'),
+                document.getElementById('strengthBar2'),
+                document.getElementById('strengthBar3'),
+                document.getElementById('strengthBar4')
+            ];
+            const strengthText = document.getElementById('strengthText').querySelector('span');
+            
+            // Reset all bars
+            strengthBars.forEach(bar => {
+                bar.style.backgroundColor = '#e9ecef';
+            });
+            
+            let strength = 0;
+            
+            // Check password strength criteria
+            if (password.length > 0) strength++;
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password) && /[a-z]/.test(password)) strength++;
+            if (/\d/.test(password) && /[^A-Za-z0-9]/.test(password)) strength++;
+            
+            // Update bars
+            for (let i = 0; i < strength; i++) {
+                if (i < 2) {
+                    strengthBars[i].style.backgroundColor = 'var(--danger)';
+                } else if (i < 3) {
+                    strengthBars[i].style.backgroundColor = 'var(--warning)';
+                } else {
+                    strengthBars[i].style.backgroundColor = 'var(--success)';
+                }
+            }
+            
+            // Update text
+            if (strength === 0) {
+                strengthText.textContent = 'Débil';
+                strengthText.style.color = 'var(--danger)';
+            } else if (strength <= 2) {
+                strengthText.textContent = 'Débil';
+                strengthText.style.color = 'var(--danger)';
+            } else if (strength === 3) {
+                strengthText.textContent = 'Media';
+                strengthText.style.color = 'var(--warning)';
+            } else {
+                strengthText.textContent = 'Fuerte';
+                strengthText.style.color = 'var(--success)';
+            }
+            
+            // No permitir contraseñas débiles
+            if (strength <= 2 && password.length > 0) {
+                showError(passwordInput, passwordError, "La contraseña es demasiado débil");
+                isPasswordValid = false;
+            } else if (password.length >= 8) {
+                clearError(passwordInput, passwordError);
+                isPasswordValid = true;
+            }
+            
+            updateSubmitButton();
+        }
+        
+        // Funciones auxiliares para mostrar/ocultar errores
+        function showError(input, errorElement, message) {
+            input.classList.add('error-field');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+        
+        function clearError(input, errorElement) {
+            input.classList.remove('error-field');
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+        }
+        
+        function showGlobalError(message) {
+            // Crear o actualizar mensaje de error global
+            let globalError = document.querySelector('.global-error-message');
+            
+            if (!globalError) {
+                globalError = document.createElement('div');
+                globalError.className = 'error-message global-error-message';
+                form.insertBefore(globalError, form.firstChild);
+            }
+            
+            globalError.innerHTML = `<p>${message}</p>`;
+            globalError.style.display = 'block';
+            
+            // Hacer scroll al mensaje de error
+            globalError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        // Actualizar estado del botón de envío
+        function updateSubmitButton() {
+            if (isNameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid && isRoleValid) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.7';
+                submitBtn.style.cursor = 'not-allowed';
+            }
+        }
+        
+        // Validar todos los campos al cargar la página (por si hay valores precargados)
+        document.addEventListener('DOMContentLoaded', function() {
+            validateName();
+            validateEmail();
+            validatePassword();
+            validateConfirmPassword();
+            validateRole();
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html>
+</html
