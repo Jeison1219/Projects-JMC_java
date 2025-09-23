@@ -484,7 +484,11 @@
               <td>
                 <span th:text="${p.fechaInicio}">Inicio</span> - <span th:text="${p.fechaFin}">Fin</span>
               </td>
-              <td th:text="${p.miembros}">Miembros</td>
+              <td>
+                <span th:each="miembro, iterStat : ${p.miembros}">
+                  <span th:text="${miembro.name}"></span><span th:if="${!iterStat.last}">, </span>
+                </span>
+              </td>
               <td>
                 <a th:href="@{'/proyectos/detalles/' + ${p.id}}" class="btn btn-info btn-sm icon-btn" title="Ver Detalles">
                   <i class="fas fa-eye"></i>

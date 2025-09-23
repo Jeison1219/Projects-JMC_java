@@ -303,7 +303,12 @@
   <div class="row row-detail">
     <div class="col-md-12">
       <dt>Miembros:</dt>
-      <dd th:text="${proyecto.miembros}">Miembros</dd>
+      <dd>
+        <span th:if="${#lists.isEmpty(proyecto.miembros)}" class="text-muted">Sin miembros</span>
+        <span th:each="miembro, iterStat : ${proyecto.miembros}">
+          <span th:text="${miembro.name}"></span><span th:if="${!iterStat.last}">, </span>
+        </span>
+      </dd>
     </div>
   </div>
 

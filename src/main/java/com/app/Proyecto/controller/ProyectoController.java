@@ -1,20 +1,30 @@
 package com.app.Proyecto.controller;
 
-import com.app.Proyecto.model.Proyecto;
-import com.app.Proyecto.model.Tarea;
-import com.app.Proyecto.service.ProyectoService;
-import com.app.Proyecto.service.TareaService;
-import com.app.Proyecto.service.PDFService;
-import lombok.RequiredArgsConstructor;
+import java.beans.PropertyEditorSupport;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDate;
-import java.util.List;
+import com.app.Proyecto.model.Proyecto;
+import com.app.Proyecto.model.Tarea;
+import com.app.Proyecto.service.PDFService;
+import com.app.Proyecto.service.ProyectoService;
+import com.app.Proyecto.service.TareaService;
+
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequestMapping("/proyectos")
@@ -24,6 +34,33 @@ public class ProyectoController {
     private final ProyectoService proyectoService;
     private final TareaService tareaService;
     private final PDFService pdfService;
+    private final com.app.Proyecto.repository.UserRepository userRepository;
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(java.util.List.class, "miembros", new MiembrosEditor(userRepository));
+    }
+
+    public static class MiembrosEditor extends PropertyEditorSupport {
+        private final com.app.Proyecto.repository.UserRepository userRepository;
+        public MiembrosEditor(com.app.Proyecto.repository.UserRepository userRepository) {
+            this.userRepository = userRepository;
+        }
+        @Override
+        public void setAsText(String text) {
+            if (text == null || text.isEmpty()) {
+                setValue(java.util.Collections.emptyList());
+            } else {
+                String[] ids = text.split(",");
+                java.util.List<com.app.Proyecto.model.User> users = new java.util.ArrayList<>();
+                for (String id : ids) {
+                    userRepository.findById(Long.parseLong(id.trim())).ifPresent(users::add);
+                }
+                setValue(users);
+            }
+        }
+    }
+
     @GetMapping("/exportar-pdf")
     public org.springframework.http.ResponseEntity<byte[]> exportarPDF(
             @RequestParam(required = false) String nombre,
@@ -56,10 +93,19 @@ public class ProyectoController {
             @RequestParam(required = false) String nombre,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin,
-            Model model) {
+            Model model,
+            @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
 
         List<Proyecto> proyectos = proyectoService.buscarProyectos(nombre, fechaInicio, fechaFin);
-        
+
+        // Filtrar proyectos donde el usuario autenticado es miembro
+        if (userDetails != null) {
+            String email = userDetails.getUsername();
+            proyectos = proyectos.stream()
+                .filter(p -> p.getMiembros() != null && p.getMiembros().stream().anyMatch(u -> email.equals(u.getEmail())))
+                .toList();
+        }
+
         model.addAttribute("proyectos", proyectos);
         model.addAttribute("nombre", nombre);
         model.addAttribute("fechaInicio", fechaInicio);
@@ -71,6 +117,7 @@ public class ProyectoController {
     @GetMapping("/nuevo")
     public String nuevo(Model model) {
         model.addAttribute("proyecto", new Proyecto());
+        model.addAttribute("usuarios", userRepository.findAll());
         return "proyecto-form";
     }
 
@@ -84,6 +131,7 @@ public class ProyectoController {
     public String editar(@PathVariable Long id, Model model) {
         Proyecto proyecto = proyectoService.buscarPorId(id);
         model.addAttribute("proyecto", proyecto);
+        model.addAttribute("usuarios", userRepository.findAll());
         return "proyecto-form";
     }
 

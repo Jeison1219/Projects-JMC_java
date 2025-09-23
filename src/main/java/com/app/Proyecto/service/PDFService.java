@@ -1,17 +1,29 @@
 package com.app.Proyecto.service;
 
-import com.app.Proyecto.model.Proyecto;
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
+import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
+import com.app.Proyecto.model.Proyecto;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 
 @Service
 public class PDFService {
@@ -142,6 +154,14 @@ public class PDFService {
         table.addCell(new Phrase(proyecto.getNombre(), CELL_FONT));
         table.addCell(new Phrase(proyecto.getFechaInicio().format(formatter), CELL_FONT));
         table.addCell(new Phrase(proyecto.getFechaFin().format(formatter), CELL_FONT));
-        table.addCell(new Phrase(proyecto.getMiembros(), CELL_FONT));
+        // Mostrar solo los nombres de los miembros separados por coma
+        String miembros = "";
+        if (proyecto.getMiembros() != null && !proyecto.getMiembros().isEmpty()) {
+            miembros = proyecto.getMiembros().stream()
+                .map(u -> u.getName())
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("");
+        }
+        table.addCell(new Phrase(miembros, CELL_FONT));
     }
 }
