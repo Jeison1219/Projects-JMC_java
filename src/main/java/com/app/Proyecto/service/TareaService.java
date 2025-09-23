@@ -1,17 +1,22 @@
 package com.app.Proyecto.service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.app.Proyecto.model.Proyecto;
 import com.app.Proyecto.model.Tarea;
 import com.app.Proyecto.model.User;
 import com.app.Proyecto.repository.TareaRepository;
 import com.app.Proyecto.repository.UserRepository;
+
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -45,8 +50,19 @@ public class TareaService {
     }
 
     // 💾 Crear nueva tarea
+    private final NotificacionService notificacionService;
+
     public Tarea crearTarea(Tarea tarea) {
-        return tareaRepository.save(tarea);
+        Tarea guardada = tareaRepository.save(tarea);
+        // Notificar al usuario asignado
+        if (guardada.getUsuario() != null) {
+            notificacionService.enviarCorreo(
+                guardada.getUsuario().getEmail(),
+                "¡Se te ha asignado una tarea!",
+                "Hola " + guardada.getUsuario().getName() + ",\n\nSe te ha asignado la tarea: " + guardada.getTitulo() + ".\n\n¡Éxito!"
+            );
+        }
+        return guardada;
     }
 
     // ❌ Eliminar tarea
