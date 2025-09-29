@@ -513,18 +513,28 @@
                       th:text="${tarea.completada} ? 'Completada' : 'Pendiente'">Estado</span>
               </td>
               <td>
-                <a th:href="@{'/tareas/detalles/' + ${tarea.id}}" class="btn btn-info btn-sm icon-btn" title="Ver Detalles">
-                  <i class="fas fa-eye"></i>
-                </a>
-                <a th:href="@{'/tareas/editar/' + ${tarea.id}}" class="btn btn-warning btn-sm icon-btn" title="Editar">
-                  <i class="fas fa-edit"></i>
-                </a>
-                <form th:action="@{'/tareas/eliminar/' + ${tarea.id}}" method="post" class="d-inline">
-                  <button type="submit" class="btn btn-danger btn-sm icon-btn" title="Eliminar" onclick="return confirm('¿Estás seguro de eliminar esta tarea?')">
-                    <i class="fas fa-trash-alt"></i>
-                  </button>
-                </form>
-              </td>
+  <a th:href="@{'/tareas/detalles/' + ${tarea.id}}" class="btn btn-info btn-sm icon-btn" title="Ver Detalles">
+    <i class="fas fa-eye"></i>
+  </a>
+  <a th:href="@{'/tareas/editar/' + ${tarea.id}}" class="btn btn-warning btn-sm icon-btn" title="Editar">
+    <i class="fas fa-edit"></i>
+  </a>
+  <form th:action="@{'/tareas/eliminar/' + ${tarea.id}}" method="post" class="d-inline">
+    <button type="submit" class="btn btn-danger btn-sm icon-btn" title="Eliminar" onclick="return confirm('¿Estás seguro de eliminar esta tarea?')">
+      <i class="fas fa-trash-alt"></i>
+    </button>
+  </form>
+
+  <!-- NUEVO: Marcar completada/pendiente -->
+  <form th:action="@{'/tareas/marcar-completada/' + ${tarea.id}}" method="post" class="d-inline">
+    <button type="submit" 
+            th:class="${tarea.completada} ? 'btn btn-secondary btn-sm icon-btn' : 'btn btn-success btn-sm icon-btn'"
+            th:title="${tarea.completada} ? 'Marcar como pendiente' : 'Marcar como completada'">
+      <i th:class="${tarea.completada} ? 'fas fa-undo' : 'fas fa-check'"></i>
+    </button>
+  </form>
+</td>
+
             </tr>
           </tbody>
         </table>

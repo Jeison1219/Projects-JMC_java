@@ -33,4 +33,21 @@ public class Tarea {
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private User usuario;
+
+    public Object getMiembros() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getMiembros'");
+    }
+
+    public Object getProyecto() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public Object getProyecto() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public Object getProyecto() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

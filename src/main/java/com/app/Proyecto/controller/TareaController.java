@@ -1,5 +1,21 @@
 package com.app.Proyecto.controller;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.app.Proyecto.model.Tarea;
 import com.app.Proyecto.model.User;
 import com.app.Proyecto.repository.ProyectoRepository;
@@ -8,16 +24,6 @@ import com.app.Proyecto.service.TareaPDFService;
 import com.app.Proyecto.service.TareaService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @Controller
 @RequestMapping("/tareas")
@@ -143,6 +149,18 @@ public class TareaController {
     public String asignarUsuario(@PathVariable Long id, @RequestParam("usuarioId") Long usuarioId) {
         tareaService.asignarUsuario(id, usuarioId);
         return "redirect:/tareas/detalles/" + id;
+    }
+
+    // ✅ Marcar como completada
+    @PostMapping("/marcar-completada/{id}")
+    public String marcarCompletada(@PathVariable Long id,
+                                   @AuthenticationPrincipal UserDetails userDetails) {
+        Tarea tarea = tareaService.buscarPorId(id);
+        if (tarea.getUsuario().getEmail().equals(userDetails.getUsername())) {
+            tarea.setCompletada(true);
+            tareaService.crearTarea(tarea);
+        }
+        return "redirect:/tareas"; // o "redirect:/tareas/detalles/" + id; si prefieres
     }
 
     // 📂 Exportar PDF
