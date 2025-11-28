@@ -4,6 +4,8 @@ import java.beans.PropertyEditorSupport;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,6 +33,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProyectoController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProyectoController.class);
+    
     private final ProyectoService proyectoService;
     private final TareaService tareaService;
     private final PDFService pdfService;
@@ -115,16 +119,61 @@ public class ProyectoController {
     }
 
     @GetMapping("/nuevo")
-    public String nuevo(Model model) {
-        model.addAttribute("proyecto", new Proyecto());
+    public String nuevo(Model model, @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
+        Proyecto proyecto = new Proyecto();
+        // Preseleccionar al usuario autenticado como miembro si existe
+        if (userDetails != null) {
+            userRepository.findByEmail(userDetails.getUsername()).ifPresent(u -> proyecto.setMiembros(java.util.List.of(u)));
+        }
+        model.addAttribute("proyecto", proyecto);
         model.addAttribute("usuarios", userRepository.findAll());
         return "proyecto-form";
     }
 
     @PostMapping
-    public String guardar(@ModelAttribute Proyecto proyecto) {
+    public String guardar(@ModelAttribute Proyecto proyecto, @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
+        // Asegurarse de que el usuario autenticado esté siempre en la lista de miembros (sin duplicados)
+        if (userDetails != null) {
+            com.app.Proyecto.model.User creador = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+            if (creador != null) {
+                java.util.List<com.app.Proyecto.model.User> miembros = proyecto.getMiembros();
+                if (miembros == null) {
+                    miembros = new java.util.ArrayList<>();
+                }
+                boolean presente = miembros.stream().anyMatch(u -> u.getEmail().equalsIgnoreCase(creador.getEmail()));
+                if (!presente) {
+                    miembros.add(creador);
+                }
+                proyecto.setMiembros(miembros);
+            }
+        }
         proyectoService.guardar(proyecto);
         return "redirect:/proyectos";
+    }
+
+    @PostMapping("/import")
+    public String importJson(@org.springframework.web.bind.annotation.RequestParam("file") org.springframework.web.multipart.MultipartFile file, Model model) {
+        try {
+            proyectoService.importFromJson(file);
+            model.addAttribute("mensaje", "Importación completada");
+        } catch (Exception e) {
+            model.addAttribute("error", "Error importando JSON: " + e.getMessage());
+        }
+        return "redirect:/proyectos";
+    }
+
+    @GetMapping("/export")
+    public org.springframework.http.ResponseEntity<byte[]> exportJson() {
+        try {
+            byte[] data = proyectoService.exportAllAsJson();
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+            headers.setContentDispositionFormData("attachment", "proyectos-export.json");
+            return org.springframework.http.ResponseEntity.ok().headers(headers).body(data);
+        } catch (Exception e) {
+            logger.error("Error al exportar proyectos a JSON", e);
+            return org.springframework.http.ResponseEntity.internalServerError().build();
+        }
     }
 
     @GetMapping("/editar/{id}")

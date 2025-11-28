@@ -76,7 +76,7 @@ public class TareaController {
     public String nuevaTarea(Model model) {
         model.addAttribute("tarea", new Tarea());
         model.addAttribute("proyectos", proyectoRepository.findAll());
-        model.addAttribute("usuarios", userRepository.findAll()); // Para asignación por admin
+        model.addAttribute("usuarios", userRepository.findAll()); // Para asignación por Project Manager
         return "tarea-form";
     }
 
@@ -136,8 +136,8 @@ public class TareaController {
         Tarea tarea = tareaService.buscarPorId(id);
         model.addAttribute("tarea", tarea);
 
-        // Solo mostrar lista de usuarios si es ADMIN
-        if (userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+        // Solo mostrar lista de usuarios si es Project Manager
+        if (userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_PROJECT_MANAGER"))) {
             model.addAttribute("usuarios", userRepository.findAll());
         }
 

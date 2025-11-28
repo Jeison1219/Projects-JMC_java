@@ -69,4 +69,14 @@ public void actualizarDatosUsuario(String email, User updated) {
             .map(user -> passwordEncoder.matches(rawPassword, user.getPassword()))
             .orElse(false); // ✅ manejar ausencia de usuario
     }
+
+    // Eliminar un usuario
+    public void delete(User user) {
+        userRepository.delete(user);
+    }
+
+    // Guardar un usuario
+    public void save(User user) {
+        userRepository.save(user);
+    }
 }

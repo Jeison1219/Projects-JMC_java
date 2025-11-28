@@ -638,7 +638,9 @@
                 
                        
 
-                    <form th:action="@{/register}" method="post" th:object="${userDto}" id="registerForm">
+                    <form th:action="@{/register}" method="post" th:object="${userDto}" id="registerForm" th:attrappend="data-server-errors=${hasErrors}">
+                        <!-- Hidden flag set by server when validation failed -->
+                        <input type="hidden" id="serverHasErrors" th:if="${hasErrors}" th:value="${hasErrors}" />
                         <!-- Mensajes de error globales -->
                         <div th:if="${#fields.hasErrors('global')}" class="error-message">
                             <div th:each="err : ${#fields.errors('global')}" th:text="${err}"></div>
@@ -697,7 +699,7 @@
                             <select th:field="*{role}" id="role" class="form-input" required>
                                 <option value="" disabled selected>Selecciona un rol</option>
                                 <option value="USER">Usuario</option>
-                                <option value="ADMIN">Administrador</option>
+                                <option value="PROJECT_MANAGER">Project Manager</option>
                             </select>
                             <div class="text-danger mt-1" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
                             <div class="error-message-field" id="role-error"></div>
@@ -876,57 +878,92 @@
                 document.getElementById('strengthBar3'),
                 document.getElementById('strengthBar4')
             ];
-            const strengthText = document.getElementById('strengthText').querySelector('span');
-            
+            const strengthTextSpan = document.getElementById('strengthText').querySelector('span');
+
             // Reset all bars
-            strengthBars.forEach(bar => {
-                bar.style.backgroundColor = '#e9ecef';
-            });
-            
-            let strength = 0;
-            
-            // Check password strength criteria
-            if (password.length > 0) strength++;
-            if (password.length >= 8) strength++;
-            if (/[A-Z]/.test(password) && /[a-z]/.test(password)) strength++;
-            if (/\d/.test(password) && /[^A-Za-z0-9]/.test(password)) strength++;
-            
-            // Update bars
-            for (let i = 0; i < strength; i++) {
-                if (i < 2) {
+            strengthBars.forEach(bar => bar.style.backgroundColor = '#e9ecef');
+
+            // Criteria
+            const hasLower = /[a-z]/.test(password);
+            const hasUpper = /[A-Z]/.test(password);
+            const hasDigit = /\d/.test(password);
+            const hasSpecial = /[^A-Za-z0-9]/.test(password);
+            const longEnough = password.length >= 8;
+
+            // Raw score (0-5)
+            let rawScore = 0;
+            if (longEnough) rawScore++;
+            if (hasLower) rawScore++;
+            if (hasUpper) rawScore++;
+            if (hasDigit) rawScore++;
+            if (hasSpecial) rawScore++;
+
+            // Map to 0-4 display strength
+            const displayStrength = Math.min(4, rawScore);
+
+            // Color the bars
+            for (let i = 0; i < displayStrength; i++) {
+                if (displayStrength <= 1) {
                     strengthBars[i].style.backgroundColor = 'var(--danger)';
-                } else if (i < 3) {
+                } else if (displayStrength === 2) {
+                    strengthBars[i].style.backgroundColor = 'var(--danger)';
+                } else if (displayStrength === 3) {
                     strengthBars[i].style.backgroundColor = 'var(--warning)';
                 } else {
                     strengthBars[i].style.backgroundColor = 'var(--success)';
                 }
             }
-            
+
             // Update text
-            if (strength === 0) {
-                strengthText.textContent = 'Débil';
-                strengthText.style.color = 'var(--danger)';
-            } else if (strength <= 2) {
-                strengthText.textContent = 'Débil';
-                strengthText.style.color = 'var(--danger)';
-            } else if (strength === 3) {
-                strengthText.textContent = 'Media';
-                strengthText.style.color = 'var(--warning)';
+            if (rawScore <= 1) {
+                strengthTextSpan.textContent = 'Débil';
+                strengthTextSpan.style.color = 'var(--danger)';
+            } else if (rawScore === 2) {
+                strengthTextSpan.textContent = 'Media';
+                strengthTextSpan.style.color = 'var(--warning)';
             } else {
-                strengthText.textContent = 'Fuerte';
-                strengthText.style.color = 'var(--success)';
+                strengthTextSpan.textContent = 'Fuerte';
+                strengthTextSpan.style.color = 'var(--success)';
             }
-            
-            // No permitir contraseñas débiles
-            if (strength <= 2 && password.length > 0) {
-                showError(passwordInput, passwordError, "La contraseña es demasiado débil");
-                isPasswordValid = false;
-            } else if (password.length >= 8) {
+
+            // Valid password when at least 3 criteria (incluye longitud)
+            if (rawScore >= 3 && longEnough) {
                 clearError(passwordInput, passwordError);
                 isPasswordValid = true;
+            } else {
+                if (password.length > 0) showError(passwordInput, passwordError, 'La contraseña es demasiado débil');
+                isPasswordValid = false;
             }
-            
+
             updateSubmitButton();
+        }
+
+        // Toggle password visibility
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (!input || !icon) return;
+            try {
+                console.log('togglePasswordVisibility called for', inputId, 'current type=', input.type);
+                // Use a data attribute to track visible state
+                const visible = input.dataset.visible === 'true';
+                if (!visible) {
+                    input.type = 'text';
+                    input.dataset.visible = 'true';
+                    // Set icon to eye-slash
+                    icon.className = 'fa-solid fa-eye-slash';
+                    icon.setAttribute('aria-hidden', 'true');
+                    console.log('Password now visible for', inputId);
+                } else {
+                    input.type = 'password';
+                    input.dataset.visible = 'false';
+                    icon.className = 'fa-solid fa-eye';
+                    icon.setAttribute('aria-hidden', 'true');
+                    console.log('Password now hidden for', inputId);
+                }
+            } catch (e) {
+                console.warn('togglePasswordVisibility error', e);
+            }
         }
         
         // Funciones auxiliares para mostrar/ocultar errores
@@ -979,6 +1016,28 @@
             validatePassword();
             validateConfirmPassword();
             validateRole();
+
+            // Si el servidor devolvió errores (renderizados en la página), asegurar que
+            // el botón de enviar esté habilitado para permitir correcciones sin recargar.
+            try {
+                const globalError = document.querySelector('.error-message');
+                const anyFieldError = Array.from(document.querySelectorAll('.text-danger'))
+                    .some(el => el.textContent && el.textContent.trim().length > 0);
+
+                if (globalError || anyFieldError) {
+                    // Habilitar botón de envío para que el usuario pueda corregir y reintentar
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                    submitBtn.style.cursor = 'pointer';
+
+                    // Quitar loader si por alguna razón quedó activo
+                    const loader = document.getElementById('loader');
+                    if (loader) loader.classList.remove('active');
+                }
+            } catch (err) {
+                // No interrumpir la carga por errores menores en este script
+                console.warn('Error comprobando errores del servidor:', err);
+            }
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

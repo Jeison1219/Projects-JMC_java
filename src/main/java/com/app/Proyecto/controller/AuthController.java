@@ -1,5 +1,20 @@
 package com.app.Proyecto.controller;
 
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.app.Proyecto.dto.UserRegistrationDto;
 import com.app.Proyecto.model.User;
 import com.app.Proyecto.service.AuthService;
@@ -8,15 +23,6 @@ import com.app.Proyecto.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-
-import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -38,6 +44,7 @@ public class AuthController {
     public String registerWeb(
             @ModelAttribute("userDto") @Valid UserRegistrationDto userDto,
             BindingResult result,
+            HttpServletRequest request,
             Model model) {
 
         if (!userDto.getPassword().equals(userDto.getConfirmPassword())) {
@@ -49,12 +56,51 @@ public class AuthController {
         }
 
         if (result.hasErrors()) {
+            model.addAttribute("hasErrors", true);
+            model.addAttribute("userDto", userDto);
             return "register";
         }
 
-        userService.register(userDto);
-        model.addAttribute("success", "Usuario registrado con éxito");
-        return "login";
+        // Crear usuario de verdad y enviar código de verificación
+        String ip = request.getRemoteAddr();
+        String rol = "ROLE_" + userDto.getRole().toUpperCase();
+        boolean codigoEnviado = authService.enviarCodigoRegistro(
+            userDto.getEmail(), 
+            userDto.getName(), 
+            userDto.getPassword(),
+            rol, 
+            ip
+        );
+        
+        if (codigoEnviado) {
+            model.addAttribute("email", userDto.getEmail());
+            return "verificar-registro"; // Nueva página de verificación
+        } else {
+            model.addAttribute("hasErrors", true);
+            model.addAttribute("error", "Error al enviar el código. Intenta de nuevo.");
+            model.addAttribute("userDto", userDto);
+            return "register";
+        }
+    }
+
+    @PostMapping("/verificar-registro-codigo")
+    public String verificarRegistroCodigo(
+            @RequestParam String email,
+            @RequestParam String codigo,
+            HttpServletRequest request,
+            Model model) {
+
+        String ip = request.getRemoteAddr();
+        boolean codigoValido = authService.verificarCodigoRegistro(email, codigo, ip);
+
+        if (codigoValido) {
+            // ✅ El usuario YA FUE CREADO en la BD por authService.verificarCodigoRegistro()
+            return "redirect:/login?registroExitoso";
+        } else {
+            model.addAttribute("error", "Código inválido, expirado o IP diferente");
+            model.addAttribute("email", email);
+            return "verificar-registro";
+        }
     }
 
     @PostMapping("/api/auth/register")

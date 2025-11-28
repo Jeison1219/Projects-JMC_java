@@ -348,7 +348,8 @@
       <div class="mb-4">
         <label for="miembros"><i class="fas fa-users me-1"></i> Miembros</label>
         <select class="form-select" id="miembros" th:field="*{miembros}" multiple required style="width: 100%">
-          <option th:each="u : ${usuarios}" th:value="${u.id}" th:text="${u.name}"></option>
+          <option th:each="u : ${usuarios}" th:value="${u.id}" th:text="${u.name}"
+                  th:selected="${proyecto.miembros != null} ? ${proyecto.miembros.contains(u)} : false"></option>
         </select>
       </div>
 

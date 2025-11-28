@@ -28,6 +28,9 @@ public class User {
 
     private String role;
 
+    // Campos para verificación de email en registro
+    private boolean emailVerificado = false;
+
     // Campos para recuperación de contraseña
     private String codigoVerificacion;
     private LocalDateTime codigoExpiracion;

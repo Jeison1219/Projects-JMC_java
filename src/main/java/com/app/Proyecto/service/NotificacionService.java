@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -31,6 +32,7 @@ public class NotificacionService {
     }
 
     // envío texto plano (compatibilidad)
+    @Async
     public void enviarCorreo(String destinatario, String asunto, String mensaje) {
         try {
             org.springframework.mail.SimpleMailMessage email = new org.springframework.mail.SimpleMailMessage();
@@ -45,6 +47,7 @@ public class NotificacionService {
     }
 
     // envío HTML directo
+    @Async
     public void enviarCorreoHtml(String destinatario, String asunto, String htmlBody) {
         try {
             MimeMessage msg = mailSender.createMimeMessage();
@@ -67,6 +70,7 @@ public class NotificacionService {
      * @param templateName nombre de plantilla Thymeleaf (ej: "email/tarea-asignada" o "email/proyecto-asignado")
      * @param inlineLogo true para incrustar logo desde static/images/logo.png
      */
+    @Async
     public void enviarCorreoConTemplate(String to, String subject, Map<String, Object> variables,
                                         String templateName, boolean inlineLogo) {
         try {

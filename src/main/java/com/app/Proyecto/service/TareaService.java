@@ -122,12 +122,12 @@ public class TareaService {
     public List<Tarea> buscarTareasConFiltros(User usuario, String titulo, Boolean completada, String prioridad,
                                               Long proyectoId, java.time.LocalDate fechaInicio, java.time.LocalDate fechaFin) {
 
-        boolean esAdmin = usuario.getRole() != null && usuario.getRole().equalsIgnoreCase("ADMIN");
+    boolean esProjectManager = usuario.getRole() != null && usuario.getRole().equalsIgnoreCase("PROJECT_MANAGER");
 
         Specification<Tarea> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (!esAdmin) {
+            if (!esProjectManager) {
                 predicates.add(cb.equal(root.get("usuario"), usuario));
             }
 

@@ -413,6 +413,9 @@
         <a href="/proyectos/nuevo" class="btn btn-primary">
           <i class="fas fa-plus-circle me-1"></i> Nuevo Proyecto
         </a>
+        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#importJsonModal" title="Importar proyectos y tareas desde archivo JSON">
+          <i class="fas fa-file-import me-1"></i> Importar JSON
+        </button>
         <a th:href="@{/proyectos/exportar-pdf(nombre=${nombre},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}" class="btn btn-danger">
           <i class="fas fa-file-pdf me-1"></i> Exportar PDF
         </a>
@@ -508,11 +511,70 @@
         </table>
       </div>
     </div>
+    <!-- Modal para importar JSON -->
+    <div class="modal fade" id="importJsonModal" tabindex="-1" aria-labelledby="importJsonLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-info text-white">
+            <h5 class="modal-title" id="importJsonLabel">
+              <i class="fas fa-file-import me-2"></i> Importar Proyectos y Tareas
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form id="importJsonForm" method="post" th:action="@{/proyectos/import}" enctype="multipart/form-data">
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="jsonFile" class="form-label">Selecciona archivo JSON</label>
+                <input type="file" class="form-control" id="jsonFile" name="file" accept=".json,application/json" required>
+                <small class="text-muted">
+                  El archivo debe contener un array de proyectos. 
+                  <a href="#" onclick="showJsonFormat(); return false;">Ver formato esperado</a>
+                </small>
+              </div>
+              <div id="jsonFormatInfo" class="alert alert-secondary d-none" style="font-size: 0.85rem;">
+                <strong>Formato esperado:</strong>
+                <pre style="margin: 0.5rem 0; max-height: 250px; overflow-y: auto;">[
+  {
+    "nombre": "Proyecto A",
+    "descripcion": "Descripción",
+    "fechaInicio": "2025-11-01",
+    "fechaFin": "2025-12-01",
+    "miembrosEmails": ["a@example.com"],
+    "tareas": [
+      {
+        "titulo": "Tarea 1",
+        "descripcion": "Detalle",
+        "fechaLimite": "2025-11-10",
+        "prioridad": "Alta",
+        "completada": false,
+        "usuarioEmail": "a@example.com"
+      }
+    ]
+  }
+]</pre>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-info" id="importBtn">
+                <i class="fas fa-upload me-1"></i> Importar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+   // Mostrar/ocultar formato de JSON
+   function showJsonFormat() {
+     const info = document.getElementById('jsonFormatInfo');
+     info.classList.toggle('d-none');
+   }
+
    document.addEventListener("DOMContentLoaded", function () {
     const fechaInicio = document.getElementById("fechaInicio");
     const fechaFin = document.getElementById("fechaFin");

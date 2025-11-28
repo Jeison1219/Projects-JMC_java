@@ -579,7 +579,10 @@
                     </div>
                     
                     <div th:if="${param.error}" class="error-message">
-                        <p>Usuario o contraseña incorrectos</p>
+                        <p>
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Usuario o contraseña incorrectos
+                        </p>
                     </div>
                     
                     <form th:action="@{/login}" method="post" id="loginForm">
@@ -595,6 +598,12 @@
                         
                         <button type="submit" class="submit-btn">Acceder</button>
                     </form>
+                    
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <a th:href="@{/recuperar}" style="color: var(--primary); text-decoration: none; font-size: 0.9rem; font-weight: 500;">
+                            <i class="fas fa-key" style="margin-right: 0.5rem;"></i>¿Olvidaste tu contraseña?
+                        </a>
+                    </div>
                     
                     <div class="form-footer">
                         ¿No tienes cuenta? <a th:href="@{/register}">Regístrate aquí</a>

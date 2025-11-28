@@ -1,5 +1,6 @@
 package com.app.Proyecto.service;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -12,10 +13,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.app.Proyecto.model.Proyecto;
 import com.app.Proyecto.repository.ProyectoRepository;
 import com.app.Proyecto.repository.UserRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
@@ -29,12 +34,14 @@ public class ProyectoService {
     private final ProyectoRepository proyectoRepository;
     private final UserRepository userRepository;
     private final NotificacionService notificacionService;
+    private final com.app.Proyecto.repository.TareaRepository tareaRepository;
 
     // Base URL para links en los emails (configurable en application.properties)
     @Value("${app.url:http://localhost:8080}")
     private String appUrl;
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     // -------------------------
     // Métodos públicos
@@ -142,6 +149,120 @@ public class ProyectoService {
 
     public void eliminar(Long id) {
         proyectoRepository.deleteById(id);
+    }
+
+    /**
+     * Importar proyectos y tareas desde un archivo JSON.
+     * Formato esperado: lista de ExportProyectoDto (contiene miembros por email y tareas con usuarioEmail)
+     */
+    @Transactional
+    public void importFromJson(MultipartFile file) throws Exception {
+        var bytes = file.getBytes();
+        String content = new String(bytes, StandardCharsets.UTF_8);
+
+        // Leer lista de proyectos desde JSON
+        List<com.app.Proyecto.dto.ExportProyectoDto> proyectos = objectMapper.readValue(content, new TypeReference<>() {});
+
+        for (var pDto : proyectos) {
+            Proyecto proyecto = new Proyecto();
+            proyecto.setNombre(pDto.getNombre());
+            proyecto.setDescripcion(pDto.getDescripcion());
+            proyecto.setFechaInicio(pDto.getFechaInicio());
+            proyecto.setFechaFin(pDto.getFechaFin());
+
+            // Resolver/crear miembros por email
+            if (pDto.getMiembrosEmails() != null) {
+                java.util.List<com.app.Proyecto.model.User> miembros = new java.util.ArrayList<>();
+                for (String email : pDto.getMiembrosEmails()) {
+                    com.app.Proyecto.model.User user = userRepository.findByEmail(email)
+                            .orElseGet(() -> {
+                                com.app.Proyecto.model.User nuevo = new com.app.Proyecto.model.User();
+                                nuevo.setEmail(email);
+                                nuevo.setName(email.split("@")[0]);
+                                nuevo.setPassword("{noop}disabled"); // temporal, sin encriptar
+                                nuevo.setRole("USER");
+                                return userRepository.save(nuevo);
+                            });
+                    miembros.add(user);
+                }
+                proyecto.setMiembros(miembros);
+            }
+
+            Proyecto guardado = proyectoRepository.save(proyecto);
+
+            // Crear tareas si hay
+            if (pDto.getTareas() != null) {
+                for (var tDto : pDto.getTareas()) {
+                    com.app.Proyecto.model.Tarea tarea = new com.app.Proyecto.model.Tarea();
+                    tarea.setTitulo(tDto.getTitulo());
+                    tarea.setDescripcion(tDto.getDescripcion());
+                    tarea.setFechaLimite(tDto.getFechaLimite());
+                    tarea.setPrioridad(tDto.getPrioridad());
+                    tarea.setCompletada(tDto.isCompletada());
+                    tarea.setProyecto(guardado);
+
+                    if (tDto.getUsuarioEmail() != null) {
+                        userRepository.findByEmail(tDto.getUsuarioEmail()).ifPresent(tarea::setUsuario);
+                    }
+
+                    // Guardar tarea
+                    // Usar repository directo para evitar notificaciones redundantes
+                    // (si quieres notificar, llamar a crearTarea en lugar de save)
+                    // suponiendo que existe TareaRepository inyectable
+                    tareaRepository.save(tarea);
+                }
+            }
+        }
+    }
+
+    /** Exportar todos los proyectos y sus tareas en JSON */
+    @Transactional(readOnly = true)
+    public byte[] exportAllAsJson() throws Exception {
+        // Usar query con join fetch para cargar todo de una vez
+        List<Proyecto> proyectos = proyectoRepository.findAllWithMiembrosAndTareas();
+        List<com.app.Proyecto.dto.ExportProyectoDto> out = new java.util.ArrayList<>();
+
+        for (var p : proyectos) {
+            com.app.Proyecto.dto.ExportProyectoDto dto = new com.app.Proyecto.dto.ExportProyectoDto();
+            dto.setId(p.getId());
+            dto.setNombre(p.getNombre());
+            dto.setDescripcion(p.getDescripcion());
+            dto.setFechaInicio(p.getFechaInicio());
+            dto.setFechaFin(p.getFechaFin());
+
+            // Mapear miembros
+            if (p.getMiembros() != null && !p.getMiembros().isEmpty()) {
+                List<String> emails = new java.util.ArrayList<>();
+                for (var m : p.getMiembros()) {
+                    emails.add(m.getEmail());
+                }
+                dto.setMiembrosEmails(emails);
+            }
+
+            // Mapear tareas
+            if (p.getTareas() != null && !p.getTareas().isEmpty()) {
+                List<com.app.Proyecto.dto.ExportTareaDto> tareasDto = new java.util.ArrayList<>();
+                for (var t : p.getTareas()) {
+                    com.app.Proyecto.dto.ExportTareaDto td = new com.app.Proyecto.dto.ExportTareaDto();
+                    td.setId(t.getId());
+                    td.setTitulo(t.getTitulo());
+                    td.setDescripcion(t.getDescripcion());
+                    td.setFechaLimite(t.getFechaLimite());
+                    td.setPrioridad(t.getPrioridad());
+                    td.setCompletada(t.isCompletada());
+                    td.setProyectoId(p.getId());
+                    if (t.getUsuario() != null) {
+                        td.setUsuarioEmail(t.getUsuario().getEmail());
+                    }
+                    tareasDto.add(td);
+                }
+                dto.setTareas(tareasDto);
+            }
+
+            out.add(dto);
+        }
+
+        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(out);
     }
 
     /**
