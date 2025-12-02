@@ -15,7 +15,24 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/register", "/login", "/home", "/recuperar", "/enviar-codigo", "/verificar-codigo", "/cambiar-password", "/verificar-registro-codigo", "/css/**", "/js/**", "/api/auth/**").permitAll()
+                .requestMatchers(
+                    "/", 
+                    "/register",
+                    "/register/**",
+                    "/registro",
+                    "/registro/**",
+                    "/login", 
+                    "/home", 
+                    "/recuperar", 
+                    "/enviar-codigo", 
+                    "/verificar-codigo", 
+                    "/cambiar-password", 
+                    "/verificar-registro-codigo", 
+                    "/css/**", 
+                    "/js/**", 
+                    "/images/**",
+                    "/api/auth/**"
+                ).permitAll()
 
                 .requestMatchers("/tareas/nueva", "/tareas/editar/**", "/tareas/eliminar/**").hasRole("PROJECT_MANAGER")
                 .requestMatchers("/proyectos/nuevo", "/proyectos/editar/**", "/proyectos/eliminar/**").hasRole("PROJECT_MANAGER")
