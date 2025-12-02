@@ -1,0 +1,24 @@
+# ---- Etapa 1: Construcción con Maven ----
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+WORKDIR /app
+
+# Copiar proyecto completo
+COPY . .
+
+# Construir sin tests
+RUN mvn -DskipTests clean package
+
+
+# ---- Etapa 2: Imagen final para ejecutar Spring Boot ----
+FROM eclipse-temurin:17-jdk
+
+WORKDIR /app
+
+# Copiar el jar construido desde la etapa anterior
+COPY --from=build /app/target/Proyecto-0.0.1-SNAPSHOT.jar app.jar
+
+# Puerto de ejecución
+EXPOSE 8080
+
+# Comando de inicio
+ENTRYPOINT ["java", "-jar", "app.jar"]
