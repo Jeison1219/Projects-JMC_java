@@ -83,6 +83,8 @@ public class AuthService {
             mailSender.send(message);
             return true;
         } catch (Exception e) {
+            System.out.println("ERROR ENVIANDO CORREO: " + e.getMessage()); // Agrega esto
+            e.printStackTrace(); // Asegúrate de que esto esté
             // Si falla el email, eliminar el registro pendiente
             registrosPendientes.remove(email);
             return false;
