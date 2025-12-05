@@ -31,7 +31,8 @@ public class SecurityConfig {
                     "/css/**", 
                     "/js/**", 
                     "/images/**",
-                    "/api/auth/**"
+                    "/api/auth/**",
+                    "/favicon.ico" 
                 ).permitAll()
 
                 .requestMatchers("/tareas/nueva", "/tareas/editar/**", "/tareas/eliminar/**").hasRole("PROJECT_MANAGER")
