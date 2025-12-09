@@ -219,7 +219,16 @@ public class ProyectoService {
                     tarea.setDescripcion(tDto.getDescripcion());
                     tarea.setFechaLimite(tDto.getFechaLimite());
                     tarea.setPrioridad(tDto.getPrioridad());
-                    tarea.setCompletada(tDto.isCompletada());
+                    
+                    // Manejar tanto 'completada' como 'estado'
+                    if (tDto.getEstado() != null) {
+                        // Si viene 'estado', mapear a completada
+                        tarea.setCompletada("COMPLETADA".equalsIgnoreCase(tDto.getEstado()));
+                    } else {
+                        // Si viene 'completada', usar directamente
+                        tarea.setCompletada(tDto.isCompletada());
+                    }
+                    
                     tarea.setProyecto(guardado);
 
                     if (tDto.getUsuarioEmail() != null) {

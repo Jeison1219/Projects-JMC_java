@@ -2,6 +2,8 @@ package com.app.Proyecto.dto;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 
 @Data
@@ -11,7 +13,14 @@ public class ExportTareaDto {
     private String descripcion;
     private LocalDate fechaLimite;
     private String prioridad;
+    
+    // Puede venir como 'completada' o 'estado'
+    @JsonProperty("completada")
     private boolean completada;
+    
+    @JsonProperty("estado")
+    private String estado; // Para mapear el campo estado si viene en el JSON
+    
     private Long proyectoId;
     private String usuarioEmail; // asignado por email
 }
