@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Has sido añadido(a) al proyecto</title>
+    <title>Código de Verificación - Projects-JMC</title>
     <style>
         * {
             margin: 0;
@@ -74,77 +74,44 @@
             font-size: 14px;
             color: #555;
             line-height: 1.7;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
         
-        .project-card {
+        .code-section {
             background: linear-gradient(135deg, #f0f4f8 0%, #e8f0f7 100%);
             border-left: 4px solid #29648e;
-            padding: 20px;
+            padding: 25px;
             border-radius: 8px;
-            margin: 25px 0;
+            margin: 30px 0;
+            text-align: center;
         }
         
-        .project-field {
-            margin-bottom: 12px;
-        }
-        
-        .project-field:last-child {
-            margin-bottom: 0;
-        }
-        
-        .field-label {
+        .code-label {
             font-size: 12px;
             font-weight: 600;
             color: #666;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: block;
-            margin-bottom: 4px;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
         }
         
-        .field-value {
-            font-size: 14px;
+        .code-value {
+            font-size: 42px;
+            font-weight: 700;
             color: #29648e;
+            letter-spacing: 8px;
+            font-family: 'Courier New', monospace;
+            word-spacing: 10px;
+        }
+        
+        .code-warning {
+            font-size: 12px;
+            color: #d12626;
+            margin-top: 12px;
             font-weight: 500;
         }
         
-        .field-description {
-            font-size: 13px;
-            color: #555;
-            line-height: 1.6;
-        }
-        
-        .dates-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-        }
-        
-        .date-item {
-            flex: 1;
-        }
-        
-        .cta-button {
-            display: inline-block;
-            background: linear-gradient(135deg, #29648e 0%, #3a7ca5 100%);
-            color: #ffffff;
-            padding: 14px 32px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            margin: 25px auto;
-            display: block;
-            width: fit-content;
-            box-shadow: 0 4px 6px rgba(41, 100, 142, 0.2);
-            transition: transform 0.2s;
-        }
-        
-        .cta-button:hover {
-            transform: translateY(-2px);
-        }
-        
-        .meta-info {
+        .info-box {
             background-color: #f9f9f9;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
@@ -154,8 +121,22 @@
             color: #555;
         }
         
-        .meta-info strong {
+        .info-box strong {
             color: #29648e;
+        }
+        
+        .security-notice {
+            background-color: #fff8f8;
+            border-left: 4px solid #d12626;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .security-notice strong {
+            color: #d12626;
         }
         
         .footer-divider {
@@ -209,12 +190,9 @@
                 padding: 25px 20px;
             }
             
-            .project-card {
-                padding: 15px;
-            }
-            
-            .dates-row {
-                flex-direction: column;
+            .code-value {
+                font-size: 32px;
+                letter-spacing: 4px;
             }
             
             .email-footer {
@@ -229,61 +207,50 @@
             <!-- Header -->
             <div class="email-header">
                 <div class="logo-container">
-                    <span class="logo-icon">📊</span>
+                    <span class="logo-icon">📋</span>
                 </div>
-                <h1>¡Te hemos agregado a un proyecto!</h1>
+                <h1>Verificación de Correo</h1>
             </div>
             
             <!-- Content -->
             <div class="email-content">
                 <div class="greeting">
-                    ¡Hola <strong th:text="${assigneeName}">Usuario</strong>!
+                    ¡Hola <strong th:text="${userName}">Usuario</strong>!
                 </div>
                 
                 <div class="message">
-                    Nos complace informarte que has sido agregado como miembro del siguiente proyecto en <strong>Projects-JMC</strong>.
+                    Te hemos enviado un código para completar tu registro en <strong>Projects-JMC</strong>. 
+                    Este código te permitirá acceder a tu cuenta.
                 </div>
                 
-                <!-- Project Card -->
-                <div class="project-card">
-                    <div class="project-field">
-                        <span class="field-label">📌 Nombre del Proyecto</span>
-                        <span class="field-value" th:text="${projectName}">Nombre del Proyecto</span>
-                    </div>
-                    
-                    <div class="project-field" th:if="${projectDescription != null}">
-                        <span class="field-label">📝 Descripción</span>
-                        <div class="field-description" th:text="${projectDescription}">Descripción del proyecto</div>
-                    </div>
-                    
-                    <div class="project-field">
-                        <span class="field-label">📅 Fechas del Proyecto</span>
-                        <div class="dates-row">
-                            <div class="date-item">
-                                <span style="color: #666; font-size: 12px;">Inicio:</span><br>
-                                <span style="color: #29648e; font-weight: 500;" th:text="${startDate}">01/01/2025</span>
-                            </div>
-                            <div class="date-item">
-                                <span style="color: #666; font-size: 12px;">Fin:</span><br>
-                                <span style="color: #29648e; font-weight: 500;" th:text="${endDate}">31/12/2025</span>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Código Section -->
+                <div class="code-section">
+                    <div class="code-label">Tu código de verificación</div>
+                    <div class="code-value" th:text="${codigo}">123456</div>
+                    <div class="code-warning">⏱️ Válido por 10 minutos</div>
                 </div>
                 
-                <!-- CTA Button -->
-                <a th:href="${projectLink}" class="cta-button">
-                    Ver Proyecto →
-                </a>
+                <!-- Info Box -->
+                <div class="info-box">
+                    <strong>¿Qué hacer ahora?</strong><br>
+                    <br>
+                    1. Regresa a la página de verificación<br>
+                    2. Copia el código anterior<br>
+                    3. Pégalo en el campo correspondiente<br>
+                    4. ¡Listo! Podrás acceder a tu cuenta
+                </div>
                 
-                <!-- Meta Info -->
-                <div class="meta-info">
-                    <strong>👤 Información:</strong><br>
-                    <br>
-                    Has sido agregado por: <strong th:text="${assignedBy}">Administrador</strong><br>
-                    <br>
-                    Si tienes preguntas sobre el proyecto o necesitas ayuda, 
-                    no dudes en contactar a tu administrador.
+                <!-- Security Notice -->
+                <div class="security-notice">
+                    <strong>⚠️ Seguridad:</strong> Nunca compartirás este código con nadie. 
+                    Projects-JMC nunca te pedirá este código por teléfono o chat.
+                </div>
+                
+                <!-- Additional Info -->
+                <div class="info-box">
+                    <strong>¿No realizaste esta solicitud?</strong><br>
+                    Si no intentaste registrarte en Projects-JMC, simplemente ignora este correo. 
+                    Tu cuenta no será creada sin tu confirmación.
                 </div>
             </div>
             
