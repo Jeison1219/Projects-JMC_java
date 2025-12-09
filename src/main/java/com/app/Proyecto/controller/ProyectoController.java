@@ -155,12 +155,24 @@ public class ProyectoController {
     }
 
     @PostMapping("/import")
-    public String importJson(@org.springframework.web.bind.annotation.RequestParam("file") org.springframework.web.multipart.MultipartFile file, Model model) {
+    public String importJson(@org.springframework.web.bind.annotation.RequestParam("file") org.springframework.web.multipart.MultipartFile file, 
+                             Model model,
+                             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         try {
-            proyectoService.importFromJson(file);
-            model.addAttribute("mensaje", "Importación completada");
+            if (file.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Por favor selecciona un archivo JSON");
+                return "redirect:/proyectos";
+            }
+            
+            int proyectosImportados = proyectoService.importFromJson(file);
+            redirectAttributes.addFlashAttribute("mensaje", "✓ Se importaron " + proyectosImportados + " proyecto(s) correctamente");
+            logger.info("Importación exitosa: {} proyectos", proyectosImportados);
+        } catch (com.fasterxml.jackson.core.JsonParseException e) {
+            logger.error("Error en formato JSON", e);
+            redirectAttributes.addFlashAttribute("error", "El archivo JSON no es válido. Verifica su formato");
         } catch (Exception e) {
-            model.addAttribute("error", "Error importando JSON: " + e.getMessage());
+            logger.error("Error durante la importación", e);
+            redirectAttributes.addFlashAttribute("error", "Error al importar: " + e.getMessage());
         }
         return "redirect:/proyectos";
     }
