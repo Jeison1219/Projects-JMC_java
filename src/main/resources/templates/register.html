@@ -770,7 +770,6 @@
             }
         });
         
-        // Funciones de validación
         function validateName() {
             const value = nameInput.value.trim();
             
@@ -817,7 +816,8 @@
             updatePasswordStrength(value);
             
             if (value === '') {
-                showError(passwordInput, passwordError, "La contraseña es requerida");
+                // No mostrar error si está vacío (el usuario aún está escribiendo)
+                clearError(passwordInput, passwordError);
                 isPasswordValid = false;
             } else if (value.length < 8) {
                 showError(passwordInput, passwordError, "Mínimo 8 caracteres");
@@ -843,7 +843,8 @@
             const passwordValue = passwordInput.value;
             
             if (value === '') {
-                showError(confirmPasswordInput, confirmPasswordError, "Confirma tu contraseña");
+                // No mostrar error si está vacío (el usuario aún está escribiendo)
+                clearError(confirmPasswordInput, confirmPasswordError);
                 isConfirmPasswordValid = false;
             } else if (value !== passwordValue) {
                 showError(confirmPasswordInput, confirmPasswordError, "Las contraseñas no coinciden");
@@ -882,6 +883,13 @@
 
             // Reset all bars
             strengthBars.forEach(bar => bar.style.backgroundColor = '#e9ecef');
+
+            // Si la contraseña está vacía, mostrar estado inicial
+            if (password === '') {
+                strengthTextSpan.textContent = 'Débil';
+                strengthTextSpan.style.color = 'var(--danger)';
+                return;
+            }
 
             // Criteria
             const hasLower = /[a-z]/.test(password);
@@ -1011,32 +1019,41 @@
         
         // Validar todos los campos al cargar la página (por si hay valores precargados)
         document.addEventListener('DOMContentLoaded', function() {
-            validateName();
-            validateEmail();
-            validatePassword();
-            validateConfirmPassword();
-            validateRole();
+            // Solo ejecutar validación si el servidor devolvió errores
+            const serverHasErrors = document.getElementById('serverHasErrors');
+            const globalError = document.querySelector('.error-message');
+            const anyFieldError = Array.from(document.querySelectorAll('.text-danger'))
+                .some(el => el.textContent && el.textContent.trim().length > 0);
 
-            // Si el servidor devolvió errores (renderizados en la página), asegurar que
-            // el botón de enviar esté habilitado para permitir correcciones sin recargar.
-            try {
-                const globalError = document.querySelector('.error-message');
-                const anyFieldError = Array.from(document.querySelectorAll('.text-danger'))
-                    .some(el => el.textContent && el.textContent.trim().length > 0);
+            if (serverHasErrors || globalError || anyFieldError) {
+                // Solo validar si hay errores del servidor
+                validateName();
+                validateEmail();
+                validatePassword();
+                validateConfirmPassword();
+                validateRole();
 
-                if (globalError || anyFieldError) {
-                    // Habilitar botón de envío para que el usuario pueda corregir y reintentar
-                    submitBtn.disabled = false;
-                    submitBtn.style.opacity = '1';
-                    submitBtn.style.cursor = 'pointer';
+                // Habilitar botón de envío para que el usuario pueda corregir y reintentar
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
 
-                    // Quitar loader si por alguna razón quedó activo
-                    const loader = document.getElementById('loader');
-                    if (loader) loader.classList.remove('active');
-                }
-            } catch (err) {
-                // No interrumpir la carga por errores menores en este script
-                console.warn('Error comprobando errores del servidor:', err);
+                // Quitar loader si por alguna razón quedó activo
+                const loader = document.getElementById('loader');
+                if (loader) loader.classList.remove('active');
+            } else {
+                // Si NO hay errores del servidor, inicializar con estado limpio
+                // Los campos deben estar sin errores visibles hasta que el usuario interactúe
+                isNameValid = false;
+                isEmailValid = false;
+                isPasswordValid = false;
+                isConfirmPasswordValid = false;
+                isRoleValid = false;
+                
+                // Botón deshabilitado inicialmente porque los campos están vacíos
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.7';
+                submitBtn.style.cursor = 'not-allowed';
             }
         });
     </script>
