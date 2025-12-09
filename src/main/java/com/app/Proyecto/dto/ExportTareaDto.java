@@ -30,4 +30,10 @@ public class ExportTareaDto {
     public void setFechaVencimiento(LocalDate fechaVencimiento) {
         this.fechaLimite = fechaVencimiento;
     }
+    
+    // Mapear asignadoA a usuarioEmail si viene en el JSON
+    @JsonSetter("asignadoA")
+    public void setAsignadoA(String asignadoA) {
+        this.usuarioEmail = asignadoA;
+    }
 }
