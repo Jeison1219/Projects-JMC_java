@@ -680,9 +680,9 @@
                         <div class="form-group">
                             <label for="role" class="form-label">Seleccionar Rol</label>
                             <select th:field="*{role}" id="role" class="form-input" required>
-                                <option value="" disabled selected>Selecciona un rol</option>
-                                <option value="USER">Usuario</option>
-                                <option value="PROJECT_MANAGER">Project Manager</option>
+                                <option value="">Selecciona un rol</option>
+                                <option value="USER" th:selected="${userDto.role == 'USER'}">Usuario</option>
+                                <option value="PROJECT_MANAGER" th:selected="${userDto.role == 'PROJECT_MANAGER'}">Project Manager</option>
                             </select>
                             <div class="text-danger mt-1" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
                             <div class="error-message-field" id="role-error"></div>
@@ -742,8 +742,15 @@
             validateConfirmPassword();
             validateRole();
             
+            // Validación especial para rol: debe tener un valor seleccionado
+            const roleValue = roleInput.value;
+            if (!roleValue || roleValue === '') {
+                showError(roleInput, roleError, "Por favor selecciona un rol");
+                event.preventDefault();
+            }
+            
             // Si algún campo no es válido, prevenir el envío
-            if (!isNameValid || !isEmailValid || !isPasswordValid || !isConfirmPasswordValid || !isRoleValid) {
+            if (!isNameValid || !isEmailValid || !isPasswordValid || !isConfirmPasswordValid || !roleValue || roleValue === '') {
                 event.preventDefault();
                 // Mostrar mensaje global de error
                 showGlobalError("Por favor, corrige los errores en el formulario antes de continuar.");
@@ -844,7 +851,8 @@
             const value = roleInput.value;
             
             if (value === '' || value === null) {
-                showError(roleInput, roleError, "Selecciona un rol");
+                // No mostrar error si está vacío (el usuario aún está seleccionando)
+                clearError(roleInput, roleError);
                 isRoleValid = false;
             } else {
                 clearError(roleInput, roleError);
