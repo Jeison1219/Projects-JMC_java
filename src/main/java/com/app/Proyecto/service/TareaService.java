@@ -113,6 +113,7 @@ public class TareaService {
         existente.setPrioridad(nueva.getPrioridad());
         existente.setProyecto(nueva.getProyecto());
         existente.setCompletada(nueva.isCompletada());
+        existente.setUsuario(nueva.getUsuario());
         tareaRepository.save(existente);
     }
 

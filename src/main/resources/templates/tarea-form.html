@@ -314,10 +314,10 @@
 
       <div class="mb-3" sec:authorize="hasRole('PROJECT_MANAGER')">
         <label for="usuario">Asignar a Usuario</label>
-        <select class="form-select" id="usuario" th:field="*{usuario}" required>
+        <select class="form-select" id="usuario" name="usuarioId" required>
           <option value="">Selecciona un usuario</option>
           <option th:each="u : ${usuarios}" th:value="${u.id}" th:text="${u.name}"
-                  th:selected="${tarea.usuario == null} ? ${u.email == username} : ${tarea.usuario.email == u.email}"></option>
+                  th:selected="${tarea.usuario == null} ? ${u.email == username} : ${tarea.usuario.id == u.id}"></option>
        </select>
       </div>
 

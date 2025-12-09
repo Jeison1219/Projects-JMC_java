@@ -345,7 +345,10 @@
       </div>
     </div>
 
-    <div class="d-flex justify-content-end mt-4">
+    <div class="d-flex justify-content-end mt-4 gap-2">
+      <a th:href="@{/tareas/editar/{id}(id=${tarea.id})}" class="btn btn-primary">
+        <i class="fas fa-edit"></i> Editar
+      </a>
       <a th:href="@{/tareas}" class="btn btn-secondary">
         <i class="fas fa-arrow-left"></i> Volver a la lista
       </a>
