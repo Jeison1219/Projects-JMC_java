@@ -27,7 +27,7 @@ public class TareaService {
     private final UserRepository userRepository;
     private final NotificacionService notificacionService;
 
-    @Value("${app.url:http://localhost:8080}")
+    @Value("${app.url:https://projects-jmcjava-production.up.railway.app}")
     private String appUrl;
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
