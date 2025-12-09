@@ -3,6 +3,7 @@ package com.app.Proyecto.dto;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import lombok.Data;
 
@@ -23,4 +24,10 @@ public class ExportTareaDto {
     
     private Long proyectoId;
     private String usuarioEmail; // asignado por email
+    
+    // Mapear fechaVencimiento a fechaLimite si viene en el JSON
+    @JsonSetter("fechaVencimiento")
+    public void setFechaVencimiento(LocalDate fechaVencimiento) {
+        this.fechaLimite = fechaVencimiento;
+    }
 }
