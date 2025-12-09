@@ -37,7 +37,7 @@ public class ProyectoService {
     private final com.app.Proyecto.repository.TareaRepository tareaRepository;
 
     // Base URL para links en los emails (configurable en application.properties)
-    @Value("${app.url:http://localhost:8080}")
+    @Value("${app.url:https://projects-jmcjava-production.up.railway.app}")
     private String appUrl;
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
