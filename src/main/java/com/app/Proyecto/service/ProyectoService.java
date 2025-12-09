@@ -12,6 +12,7 @@ import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +36,8 @@ public class ProyectoService {
     private final UserRepository userRepository;
     private final NotificacionService notificacionService;
     private final com.app.Proyecto.repository.TareaRepository tareaRepository;
+    
+    private final BCryptPasswordEncoder passwordEncoder;
 
     // Base URL para links en los emails (configurable en application.properties)
     @Value("${app.url:https://projects-jmcjava-production.up.railway.app}")
@@ -156,13 +159,14 @@ public class ProyectoService {
      * Formato esperado: lista de ExportProyectoDto (contiene miembros por email y tareas con usuarioEmail)
      */
     @Transactional
-    public void importFromJson(MultipartFile file) throws Exception {
+    public int importFromJson(MultipartFile file) throws Exception {
         var bytes = file.getBytes();
         String content = new String(bytes, StandardCharsets.UTF_8);
 
         // Leer lista de proyectos desde JSON
         List<com.app.Proyecto.dto.ExportProyectoDto> proyectos = objectMapper.readValue(content, new TypeReference<>() {});
 
+        int contadorProyectos = 0;
         for (var pDto : proyectos) {
             Proyecto proyecto = new Proyecto();
             proyecto.setNombre(pDto.getNombre());
@@ -179,8 +183,9 @@ public class ProyectoService {
                                 com.app.Proyecto.model.User nuevo = new com.app.Proyecto.model.User();
                                 nuevo.setEmail(email);
                                 nuevo.setName(email.split("@")[0]);
-                                nuevo.setPassword("{noop}disabled"); // temporal, sin encriptar
+                                nuevo.setPassword(passwordEncoder.encode("Temporal123!"));
                                 nuevo.setRole("USER");
+                                nuevo.setEmailVerificado(false);
                                 return userRepository.save(nuevo);
                             });
                     miembros.add(user);
@@ -189,6 +194,7 @@ public class ProyectoService {
             }
 
             Proyecto guardado = proyectoRepository.save(proyecto);
+            contadorProyectos++;
 
             // Crear tareas si hay
             if (pDto.getTareas() != null) {
@@ -206,13 +212,12 @@ public class ProyectoService {
                     }
 
                     // Guardar tarea
-                    // Usar repository directo para evitar notificaciones redundantes
-                    // (si quieres notificar, llamar a crearTarea en lugar de save)
-                    // suponiendo que existe TareaRepository inyectable
                     tareaRepository.save(tarea);
                 }
             }
         }
+        
+        return contadorProyectos;
     }
 
     /** Exportar todos los proyectos y sus tareas en JSON */

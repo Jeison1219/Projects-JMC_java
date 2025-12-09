@@ -305,6 +305,54 @@
                 opacity: 1;
             }
         }
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+    /* Alertas */
+    .alert {
+        border-radius: 12px;
+        border: 1px solid transparent;
+        font-weight: 500;
+        font-size: 0.95rem;
+        padding: 1rem 1.25rem;
+    }
+
+    .alert-success {
+        background-color: #f0fdf4;
+        border-color: #86efac;
+        color: #166534;
+    }
+
+    .alert-danger {
+        background-color: #fef2f2;
+        border-color: #fca5a5;
+        color: #991b1b;
+    }
+
+    .alert-warning {
+        background-color: #fffbeb;
+        border-color: #fde68a;
+        color: #92400e;
+    }
+
+    .alert .btn-close {
+        filter: none;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+    }
+
+    .alert .btn-close:hover {
+        opacity: 1;
+    }
 
     /* Responsive */
     @media (max-width: 992px) {
@@ -404,6 +452,19 @@
   
   <!-- CONTENT -->
   <main class="content">
+    <!-- Alertas de Mensajes Flash -->
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert" style="animation: slideInDown 0.4s ease-out; margin-bottom: 1.5rem;">
+      <i class="fas fa-check-circle me-2" style="font-size: 1.2rem;"></i>
+      <div th:text="${mensaje}"></div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert" style="animation: slideInDown 0.4s ease-out; margin-bottom: 1.5rem;">
+      <i class="fas fa-exclamation-circle me-2" style="font-size: 1.2rem;"></i>
+      <div th:text="${error}"></div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <div class="top-actions">
       <h3 class="header-title"><i class="fas fa-project-diagram"></i> Gestión de Proyectos</h3>
       <div class="d-flex gap-2">
