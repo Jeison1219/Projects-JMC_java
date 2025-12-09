@@ -46,13 +46,34 @@ public class TareaService {
         return tareaRepository.countByPrioridad(prioridad);
     }
 
+    // Contar por prioridad para un usuario específico
+    public long contarPorPrioridadPorUsuario(User usuario, String prioridad) {
+        return tareaRepository.countByUsuarioAndPrioridad(usuario, prioridad);
+    }
+
     public long contarTareasPendientes() {
         return tareaRepository.countByCompletada(false);
+    }
+
+    // Contar tareas pendientes para un usuario específico
+    public long contarTareasPendientesPorUsuario(User usuario) {
+        return tareaRepository.countByUsuarioAndCompletadaFalse(usuario);
     }
 
     public Map<String, Long> obtenerEstadisticasProgreso() {
         long completadas = tareaRepository.countByCompletadaTrue();
         long pendientes = tareaRepository.countByCompletadaFalse();
+
+        Map<String, Long> estadisticas = new HashMap<>();
+        estadisticas.put("completadas", completadas);
+        estadisticas.put("pendientes", pendientes);
+        return estadisticas;
+    }
+
+    // Obtener estadísticas de progreso para un usuario específico
+    public Map<String, Long> obtenerEstadisticasProgresoPorUsuario(User usuario) {
+        long completadas = tareaRepository.countByUsuarioAndCompletadaTrue(usuario);
+        long pendientes = tareaRepository.countByUsuarioAndCompletadaFalse(usuario);
 
         Map<String, Long> estadisticas = new HashMap<>();
         estadisticas.put("completadas", completadas);

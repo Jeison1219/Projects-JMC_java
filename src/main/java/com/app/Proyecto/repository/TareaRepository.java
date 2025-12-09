@@ -20,5 +20,10 @@ public interface TareaRepository extends JpaRepository<Tarea, Long>, JpaSpecific
     long countByCompletadaTrue();
     long countByCompletadaFalse();
 
+    // Métodos para filtrar por usuario (para el dashboard)
+    long countByUsuarioAndPrioridad(User usuario, String prioridad);
+    long countByUsuarioAndCompletada(User usuario, boolean completada);
+    long countByUsuarioAndCompletadaTrue(User usuario);
+    long countByUsuarioAndCompletadaFalse(User usuario);
 
 }
