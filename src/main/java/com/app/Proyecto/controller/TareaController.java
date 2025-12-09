@@ -82,9 +82,15 @@ public class TareaController {
 
     // 💾 Crear tarea
     @PostMapping
-    public String crear(@ModelAttribute Tarea tarea, @AuthenticationPrincipal UserDetails userDetails) {
-        // Solo se asigna usuario actual si no se seleccionó uno desde el formulario (usuario solo)
-        if (tarea.getUsuario() == null) {
+    public String crear(@ModelAttribute Tarea tarea, @RequestParam(required = false) Long usuarioId,
+                        @AuthenticationPrincipal UserDetails userDetails) {
+        // Si se proporcionó un ID de usuario (por Project Manager), obtenerlo y asignarlo
+        if (usuarioId != null && usuarioId > 0) {
+            User usuario = userRepository.findById(usuarioId)
+                    .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + usuarioId));
+            tarea.setUsuario(usuario);
+        } else if (tarea.getUsuario() == null) {
+            // Solo se asigna usuario actual si no se seleccionó uno desde el formulario (usuario solo)
             User usuario = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
             tarea.setUsuario(usuario);
         }
@@ -104,7 +110,14 @@ public class TareaController {
 
     // 🔄 Actualizar tarea
     @PostMapping("/actualizar/{id}")
-    public String actualizarTarea(@PathVariable Long id, @ModelAttribute Tarea tareaActualizada) {
+    public String actualizarTarea(@PathVariable Long id, @ModelAttribute Tarea tareaActualizada,
+                                   @RequestParam(required = false) Long usuarioId) {
+        // Si se proporcionó un ID de usuario, obtenerlo y asignarlo
+        if (usuarioId != null && usuarioId > 0) {
+            User usuario = userRepository.findById(usuarioId)
+                    .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + usuarioId));
+            tareaActualizada.setUsuario(usuario);
+        }
         tareaService.actualizar(id, tareaActualizada);
         return "redirect:/tareas";
     }
