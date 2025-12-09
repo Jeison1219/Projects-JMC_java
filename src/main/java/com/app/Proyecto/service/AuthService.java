@@ -6,19 +6,27 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import com.app.Proyecto.model.User;
 import com.app.Proyecto.repository.UserRepository;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 
 @Service
 public class AuthService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -26,11 +34,14 @@ public class AuthService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Autowired
+    private TemplateEngine templateEngine;
+
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
     
     // ========= ALMACENAMIENTO TEMPORAL DE REGISTROS PENDIENTES =========
     // Guardar datos temporales hasta que se verifique el email
-    private Map<String, RegistroPendiente> registrosPendientes = new HashMap<>();
+    private final Map<String, RegistroPendiente> registrosPendientes = new HashMap<>();
 
     public static class RegistroPendiente {
         public String email;
@@ -74,17 +85,12 @@ public class AuthService {
         RegistroPendiente registroPendiente = new RegistroPendiente(email, nombre, password, rol, ip, codigo);
         registrosPendientes.put(email, registroPendiente);
 
-        // Enviar email
+        // Enviar email con template HTML
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(email);
-            message.setSubject("Código de verificación - Projects-JMC");
-            message.setText("Tu código para verificar tu correo es: " + codigo + "\n\nEste código expira en 10 minutos.");
-            mailSender.send(message);
+            enviarEmailConTemplate(email, nombre, codigo, "email/codigo-verificacion");
             return true;
-        } catch (Exception e) {
-            System.out.println("ERROR ENVIANDO CORREO: " + e.getMessage()); // Agrega esto
-            e.printStackTrace(); // Asegúrate de que esto esté
+        } catch (MessagingException e) {
+            logger.error("Error enviando email de verificación a {}: ", email, e);
             // Si falla el email, eliminar el registro pendiente
             registrosPendientes.remove(email);
             return false;
@@ -161,14 +167,13 @@ public class AuthService {
 
         userRepository.save(user);
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);
-        message.setSubject("Código de recuperación");
-        message.setText("Tu código para recuperar la contraseña es: " + codigo);
-
-        mailSender.send(message);
-
-        return true;
+        try {
+            enviarEmailConTemplate(email, user.getName(), codigo, "email/codigo-recuperacion");
+            return true;
+        } catch (MessagingException e) {
+            logger.error("Error enviando email de recuperación a {}: ", email, e);
+            return false;
+        }
     }
 
     public boolean verificarCodigo(String email, String codigoIngresado, String ipCliente) {
@@ -209,5 +214,25 @@ public class AuthService {
         user.setCodigoExpiracion(null);
         user.setCodigoUsado(false);
         userRepository.save(user);
+    }
+
+    // ========= MÉTODO AUXILIAR PARA ENVIAR EMAILS CON TEMPLATE =========
+    private void enviarEmailConTemplate(String email, String userName, String codigo, String templateName) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("userName", userName);
+        context.setVariable("codigo", codigo);
+
+        String htmlContent = templateEngine.process(templateName, context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setTo(email);
+        helper.setSubject(templateName.contains("verificacion") ? 
+            "Código de Verificación - Projects-JMC" : 
+            "Recuperación de Contraseña - Projects-JMC");
+        helper.setText(htmlContent, true); // true para HTML
+
+        mailSender.send(message);
     }
 }
