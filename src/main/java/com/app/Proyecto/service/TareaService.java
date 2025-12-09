@@ -174,7 +174,7 @@ public class TareaService {
             }
 
             if (fechaFin != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("fechaLimite"), fechaFin));
+                predicates.add(cb.equal(root.get("fechaLimite"), fechaFin));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
