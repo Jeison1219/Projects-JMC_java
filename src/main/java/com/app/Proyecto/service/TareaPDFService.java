@@ -1,19 +1,36 @@
 package com.app.Proyecto.service;
 
-import com.app.Proyecto.model.Tarea;
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
-import com.itextpdf.text.pdf.draw.LineSeparator;
+import java.io.ByteArrayOutputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
+import com.app.Proyecto.model.Tarea;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.draw.LineSeparator;
 
 @Service
 public class TareaPDFService {
@@ -36,6 +53,11 @@ public class TareaPDFService {
         addMetaData(document);
         addHeader(document);
         addFilterTable(document, proyectoNombre, prioridad, estado, fechaInicio, fechaFin);
+        
+        // Agregar gráficas
+        addTareasCharts(document, tareas);
+        
+        // Agregar tabla detallada de tareas
         addTareasTable(document, tareas);
         addFooter(document, writer);
         document.close();
@@ -112,7 +134,101 @@ public class TareaPDFService {
         }
     }
 
+    private void addTareasCharts(Document document, List<Tarea> tareas) throws DocumentException {
+        if (tareas == null || tareas.isEmpty()) {
+            return;
+        }
+
+        // Título de gráficas
+        Paragraph chartsTitle = new Paragraph("Análisis de Tareas", new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, BaseColor.DARK_GRAY));
+        chartsTitle.setSpacingBefore(20);
+        chartsTitle.setSpacingAfter(15);
+        document.add(chartsTitle);
+
+        // Gráfica 1: Tareas por prioridad
+        try {
+            DefaultCategoryDataset prioridadDataset = new DefaultCategoryDataset();
+            long alta = tareas.stream().filter(t -> "Alta".equals(t.getPrioridad())).count();
+            long media = tareas.stream().filter(t -> "Media".equals(t.getPrioridad())).count();
+            long baja = tareas.stream().filter(t -> "Baja".equals(t.getPrioridad())).count();
+
+            prioridadDataset.addValue(alta, "Cantidad", "Alta");
+            prioridadDataset.addValue(media, "Cantidad", "Media");
+            prioridadDataset.addValue(baja, "Cantidad", "Baja");
+
+            JFreeChart prioridadChart = ChartFactory.createBarChart(
+                    "Tareas por Prioridad",
+                    "Prioridad",
+                    "Cantidad",
+                    prioridadDataset,
+                    PlotOrientation.VERTICAL,
+                    false,
+                    false,
+                    false
+            );
+            prioridadChart.setBackgroundPaint(java.awt.Color.WHITE);
+            prioridadChart.getPlot().setBackgroundPaint(java.awt.Color.WHITE);
+
+            java.awt.image.BufferedImage prioridadImage = prioridadChart.createBufferedImage(300, 200);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            javax.imageio.ImageIO.write(prioridadImage, "png", baos);
+            baos.flush();
+
+            Image prioridadImg = Image.getInstance(baos.toByteArray());
+            prioridadImg.scaleAbsolute(250, 166);
+            prioridadImg.setAlignment(Image.ALIGN_CENTER);
+            document.add(prioridadImg);
+            document.add(new Paragraph(" "));
+        } catch (Exception e) {
+            // Si hay error generando gráfica, continuar sin ella
+        }
+
+        // Gráfica 2: Tareas por estado
+        try {
+            long completadas = tareas.stream().filter(Tarea::isCompletada).count();
+            long pendientes = tareas.size() - completadas;
+
+            DefaultPieDataset<String> estadoDataset = new DefaultPieDataset<>();
+            estadoDataset.setValue("Completadas", completadas);
+            estadoDataset.setValue("Pendientes", pendientes);
+
+            JFreeChart estadoChart = ChartFactory.createPieChart(
+                    "Progreso de Tareas",
+                    estadoDataset,
+                    true,
+                    false,
+                    false
+            );
+            estadoChart.setBackgroundPaint(java.awt.Color.WHITE);
+            estadoChart.getPlot().setBackgroundPaint(java.awt.Color.WHITE);
+
+            java.awt.image.BufferedImage estadoImage = estadoChart.createBufferedImage(300, 200);
+            ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
+            javax.imageio.ImageIO.write(estadoImage, "png", baos2);
+            baos2.flush();
+
+            Image estadoImg = Image.getInstance(baos2.toByteArray());
+            estadoImg.scaleAbsolute(250, 166);
+            estadoImg.setAlignment(Image.ALIGN_CENTER);
+            document.add(estadoImg);
+            document.add(new Paragraph(" "));
+        } catch (Exception e) {
+            // Si hay error generando gráfica, continuar sin ella
+        }
+
+        // Separador
+        LineSeparator line = new LineSeparator();
+        line.setLineColor(BaseColor.LIGHT_GRAY);
+        document.add(new Chunk(line));
+        document.add(new Paragraph(" "));
+    }
+
     private void addTareasTable(Document document, List<Tarea> tareas) throws DocumentException {
+        // Título de tabla
+        Paragraph tableTitle = new Paragraph("Detalle de Tareas", new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, BaseColor.DARK_GRAY));
+        tableTitle.setSpacingBefore(20);
+        tableTitle.setSpacingAfter(10);
+        document.add(tableTitle);
         if (tareas == null || tareas.isEmpty()) {
             Paragraph noData = new Paragraph("No se encontraron tareas registradas con los criterios seleccionados.", new Font(Font.FontFamily.HELVETICA, 12, Font.ITALIC, BaseColor.GRAY));
             noData.setSpacingBefore(30);
