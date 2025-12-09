@@ -3,6 +3,8 @@ package com.app.Proyecto.controller;
 import java.beans.PropertyEditorSupport;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.app.Proyecto.model.Proyecto;
 import com.app.Proyecto.model.Tarea;
@@ -215,5 +218,19 @@ public class ProyectoController {
         model.addAttribute("proyecto", proyecto);
         model.addAttribute("tareas", tareas);
         return "proyecto-detalles";
+    }
+
+    @GetMapping("/api/{id}/miembros")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public List<java.util.Map<String, Object>> obtenerMiembrosProyecto(@PathVariable Long id) {
+        Proyecto proyecto = proyectoService.buscarPorId(id);
+        return proyecto.getMiembros().stream()
+                .map(miembro -> {
+                    java.util.Map<String, Object> map = new java.util.HashMap<>();
+                    map.put("id", miembro.getId());
+                    map.put("name", miembro.getName());
+                    return map;
+                })
+                .collect(java.util.stream.Collectors.toList());
     }
 }

@@ -314,10 +314,12 @@
 
       <div class="mb-3" sec:authorize="hasRole('PROJECT_MANAGER')">
         <label for="usuario">Asignar a Usuario</label>
-        <select class="form-select" id="usuario" name="usuarioId" required>
+        <select class="form-select" id="usuario" name="usuarioId" required
+                th:attr="data-current-user-id=${tarea.usuario?.id}">
           <option value="">Selecciona un usuario</option>
           <option th:each="u : ${usuarios}" th:value="${u.id}" th:text="${u.name}"
-                  th:selected="${tarea.usuario == null} ? ${u.email == username} : ${tarea.usuario.id == u.id}"></option>
+                  th:selected="${tarea.usuario == null} ? ${u.email == username} : ${tarea.usuario.id == u.id}"
+                  th:attr="data-user-id=${u.id}"></option>
        </select>
       </div>
 
@@ -336,6 +338,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+  // Almacenar todos los usuarios disponibles
+  let usuariosOriginales = [];
+
   // Animaciones al cargar
   document.addEventListener('DOMContentLoaded', function() {
     const formElements = document.querySelectorAll('.form-control, .form-select, .btn');
@@ -351,7 +356,65 @@
         el.style.transform = 'translateY(0)';
       }, 100);
     });
+
+    // Guardar la lista original de usuarios
+    const usuarioSelect = document.getElementById('usuario');
+    if (usuarioSelect) {
+      usuariosOriginales = Array.from(usuarioSelect.querySelectorAll('option')).map(option => ({
+        value: option.value,
+        text: option.text,
+        id: option.getAttribute('data-user-id')
+      }));
+    }
+
+    // Agregar evento al cambio de proyecto
+    const proyectoSelect = document.getElementById('proyecto');
+    if (proyectoSelect) {
+      proyectoSelect.addEventListener('change', cargarMiembrosProyecto);
+      
+      // Cargar miembros al cargar la página si hay un proyecto seleccionado
+      if (proyectoSelect.value) {
+        cargarMiembrosProyecto();
+      }
+    }
   });
+
+  function cargarMiembrosProyecto() {
+    const proyectoSelect = document.getElementById('proyecto');
+    const usuarioSelect = document.getElementById('usuario');
+    const proyectoId = proyectoSelect.value;
+
+    if (!proyectoId || !usuarioSelect) {
+      return;
+    }
+
+    // Obtener los miembros del proyecto
+    fetch(`/proyectos/api/${proyectoId}/miembros`)
+      .then(response => response.json())
+      .then(miembros => {
+        // Limpiar las opciones actuales (excepto la primera que es "Selecciona un usuario")
+        while (usuarioSelect.options.length > 1) {
+          usuarioSelect.remove(1);
+        }
+
+        // Agregar solo los miembros del proyecto
+        miembros.forEach(miembro => {
+          const option = document.createElement('option');
+          option.value = miembro.id;
+          option.textContent = miembro.name;
+          usuarioSelect.appendChild(option);
+        });
+
+        // Si hay un usuario previamente seleccionado y existe en los miembros, mantenerlo seleccionado
+        const usuarioActualId = usuarioSelect.getAttribute('data-current-user-id');
+        if (usuarioActualId && miembros.some(m => m.id == usuarioActualId)) {
+          usuarioSelect.value = usuarioActualId;
+        }
+      })
+      .catch(error => {
+        console.error('Error al cargar miembros del proyecto:', error);
+      });
+  }
 </script>
 </body>
 </html>
