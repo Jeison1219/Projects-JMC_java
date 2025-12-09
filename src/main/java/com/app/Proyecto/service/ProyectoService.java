@@ -22,12 +22,11 @@ import com.app.Proyecto.repository.ProyectoRepository;
 import com.app.Proyecto.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import jakarta.persistence.criteria.Predicate;
-import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class ProyectoService {
 
     private static final Logger logger = LoggerFactory.getLogger(ProyectoService.class);
@@ -44,7 +43,23 @@ public class ProyectoService {
     private String appUrl;
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    
+    private final ObjectMapper objectMapper;
+    
+    public ProyectoService(ProyectoRepository proyectoRepository, UserRepository userRepository,
+                          NotificacionService notificacionService,
+                          com.app.Proyecto.repository.TareaRepository tareaRepository,
+                          BCryptPasswordEncoder passwordEncoder) {
+        this.proyectoRepository = proyectoRepository;
+        this.userRepository = userRepository;
+        this.notificacionService = notificacionService;
+        this.tareaRepository = tareaRepository;
+        this.passwordEncoder = passwordEncoder;
+        
+        // Inicializar ObjectMapper con soporte para Java 8 date/time
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.registerModule(new JavaTimeModule());
+    }
 
     // -------------------------
     // Métodos públicos
